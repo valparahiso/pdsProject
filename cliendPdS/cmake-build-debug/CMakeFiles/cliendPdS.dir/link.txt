@@ -1,0 +1,1 @@
+/usr/bin/c++  -g   CMakeFiles/cliendPdS.dir/main.cpp.o CMakeFiles/cliendPdS.dir/con_handler.cpp.o CMakeFiles/cliendPdS.dir/Client.cpp.o  -o cliendPdS 

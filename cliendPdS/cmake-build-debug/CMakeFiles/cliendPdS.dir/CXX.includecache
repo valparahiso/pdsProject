@@ -1,0 +1,20 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/simo/CLionProjects/cliendPdS/Client.h
+string
+-
+
+/home/simo/CLionProjects/cliendPdS/main.cpp
+iostream
+-
+Client.h
+/home/simo/CLionProjects/cliendPdS/Client.h
+boost/asio.hpp
+-
+
