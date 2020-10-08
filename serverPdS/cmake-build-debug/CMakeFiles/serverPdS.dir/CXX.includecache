@@ -1,0 +1,46 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/simo/CLionProjects/serverPdS/Server.cpp
+Server.h
+/home/simo/CLionProjects/serverPdS/Server.h
+
+/home/simo/CLionProjects/serverPdS/Server.h
+iostream
+-
+boost/asio.hpp
+-
+boost/bind.hpp
+-
+boost/enable_shared_from_this.hpp
+-
+con_handler.h
+/home/simo/CLionProjects/serverPdS/con_handler.h
+
+/home/simo/CLionProjects/serverPdS/con_handler.cpp
+con_handler.h
+/home/simo/CLionProjects/serverPdS/con_handler.h
+
+/home/simo/CLionProjects/serverPdS/con_handler.h
+iostream
+-
+boost/asio.hpp
+-
+boost/bind.hpp
+-
+boost/enable_shared_from_this.hpp
+-
+
+/home/simo/CLionProjects/serverPdS/main.cpp
+iostream
+-
+boost/asio.hpp
+-
+Server.h
+/home/simo/CLionProjects/serverPdS/Server.h
+

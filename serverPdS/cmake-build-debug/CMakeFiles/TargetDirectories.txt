@@ -1,0 +1,3 @@
+/home/simo/CLionProjects/serverPdS/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/simo/CLionProjects/serverPdS/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/simo/CLionProjects/serverPdS/cmake-build-debug/CMakeFiles/serverPdS.dir
