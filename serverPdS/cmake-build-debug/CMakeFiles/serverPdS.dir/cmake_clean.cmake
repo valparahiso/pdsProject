@@ -1,6 +1,4 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/serverPdS.dir/Server.cpp.o"
-  "CMakeFiles/serverPdS.dir/con_handler.cpp.o"
   "CMakeFiles/serverPdS.dir/main.cpp.o"
   "serverPdS"
   "serverPdS.pdb"

@@ -3,4 +3,4 @@ project(serverPdS)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(serverPdS main.cpp con_handler.cpp con_handler.h Server.cpp Server.h)
+add_executable(serverPdS main.cpp)
