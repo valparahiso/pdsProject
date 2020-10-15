@@ -1,0 +1,1 @@
+/usr/bin/c++  -g   CMakeFiles/clientPdS.dir/main.cpp.o CMakeFiles/clientPdS.dir/tcp_client.cpp.o  -o clientPdS 
