@@ -1,0 +1,38 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/mario/Scrivania/pdsProj/clientPdS/main.cpp
+iostream
+-
+tcp_client.h
+/home/mario/Scrivania/pdsProj/clientPdS/tcp_client.h
+
+/home/mario/Scrivania/pdsProj/clientPdS/tcp_client.cpp
+tcp_client.h
+/home/mario/Scrivania/pdsProj/clientPdS/tcp_client.h
+
+/home/mario/Scrivania/pdsProj/clientPdS/tcp_client.h
+boost/asio/buffer.hpp
+-
+boost/asio/io_context.hpp
+-
+boost/asio/ip/tcp.hpp
+-
+boost/asio/read_until.hpp
+-
+boost/asio/steady_timer.hpp
+-
+boost/asio/write.hpp
+-
+boost/bind.hpp
+-
+iostream
+-
+string
+-
+

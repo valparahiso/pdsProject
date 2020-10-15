@@ -62,6 +62,7 @@ private:
             socket_.async_connect(endpoint_iter->endpoint(),
                                   boost::bind(&tcp_client::handle_connect,
                                               this, _1, endpoint_iter));
+            std::cout<<"weee"<<std::endl;
         }
         else
         {
@@ -106,10 +107,12 @@ private:
             std::cout << "Connected to " << endpoint_iter->endpoint() << "\n";
 
             // Start the input actor.
-            start_read();
+            //start_read();
+            std::cout<<"Lettura"<<std::endl;
 
             // Start the heartbeat actor.
-            start_write();
+            //start_write();
+            std::cout<<"Scrittura"<<std::endl;
         }
     }
 
@@ -118,10 +121,13 @@ private:
         // Set a deadline for the read operation.
         deadline_.expires_after(boost::asio::chrono::seconds(30));
 
+
         // Start an asynchronous operation to read a newline-delimited message.
         boost::asio::async_read_until(socket_,
                                       boost::asio::dynamic_buffer(input_buffer_), '\n',
                                       boost::bind(&tcp_client::handle_read, this, _1, _2));
+
+
     }
 
     void handle_read(const boost::system::error_code& ec, std::size_t n)

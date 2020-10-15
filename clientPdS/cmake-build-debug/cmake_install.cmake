@@ -1,4 +1,4 @@
-# Install script for directory: /home/simo/pdsProject/clientPdS
+# Install script for directory: /home/mario/Scrivania/pdsProj/clientPdS
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -45,5 +45,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/simo/pdsProject/clientPdS/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/mario/Scrivania/pdsProj/clientPdS/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

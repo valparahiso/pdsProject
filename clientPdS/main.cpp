@@ -13,7 +13,9 @@ int main(int argc, char* argv[])
         tcp_client c(io_context);
 
         c.start(resolver.resolve("127.0.0.1", "8001"));
+        std::cout<<"test1"<<std::endl;
         io_context.run();
+        std::cout<<"test"<<std::endl;
     }
     catch (std::exception& e)
     {
