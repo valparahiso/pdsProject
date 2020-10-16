@@ -5,8 +5,11 @@
 #include <boost/asio/steady_timer.hpp>
 #include <boost/asio/write.hpp>
 #include <boost/bind.hpp>
+#include <boost/asio.hpp>
+#include <boost/enable_shared_from_this.hpp>
 #include <iostream>
 #include <string>
+#include <boost/array.hpp>
 
 using boost::asio::steady_timer;
 using boost::asio::ip::tcp;
@@ -107,12 +110,13 @@ private:
             std::cout << "Connected to " << endpoint_iter->endpoint() << "\n";
 
             // Start the input actor.
-            //start_read();
+            start_read();
             std::cout<<"Lettura"<<std::endl;
 
             // Start the heartbeat actor.
             //start_write();
             std::cout<<"Scrittura"<<std::endl;
+
         }
     }
 
@@ -135,6 +139,9 @@ private:
         if (stopped_)
             return;
 
+        std::cout<<"EC: "<<ec<<std::endl;
+
+
         if (!ec)
         {
             // Extract the newline-delimited message from the buffer.
@@ -146,6 +153,9 @@ private:
             {
                 std::cout << "Received: " << line << "\n";
             }
+
+            stop(); //aggiunto io ma non sono sicuro perchè sotto c'è questa start_read che mi ripete la lettura e poi
+            //mi andrà a fare l'else e ci sarà errore
 
             start_read();
         }

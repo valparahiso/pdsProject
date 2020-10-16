@@ -37,10 +37,14 @@ class tcp_connection: std::enable_shared_from_this<tcp_connection> {
         void start(){
             message_ = make_daytime_string();
             std::cout<<"MESSAGGIO: "<<message_<<std::endl;
-          /*  boost::asio::async_write(socket_, boost::asio::buffer(message_),
-                                 boost::bind(&tcp_connection::handle_write, shared_from_this(),
+            boost::asio::async_write(socket_, boost::asio::buffer(message_),
+                                 boost::bind(&tcp_connection::handle_write, this,
                                              boost::asio::placeholders::error,
-                                             boost::asio::placeholders::bytes_transferred)); */
+                                             boost::asio::placeholders::bytes_transferred)); //ghghghghgh
+           // boost::asio::async_write(socket_, boost::asio::buffer(message_,256), &tcp_connection::handle_write);
+
+
+
 
         }
 
