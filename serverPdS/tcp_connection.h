@@ -35,6 +35,8 @@ class tcp_connection: std::enable_shared_from_this<tcp_connection> {
         }
 
         void start(){
+            std::cout<<"In start -server"<<std::endl;
+
             message_ = make_daytime_string();
             std::cout<<"MESSAGGIO: "<<message_<<std::endl;
             boost::asio::async_write(socket_, boost::asio::buffer(message_),
@@ -42,8 +44,18 @@ class tcp_connection: std::enable_shared_from_this<tcp_connection> {
                                              boost::asio::placeholders::error,
                                              boost::asio::placeholders::bytes_transferred)); //ghghghghgh
            // boost::asio::async_write(socket_, boost::asio::buffer(message_,256), &tcp_connection::handle_write);
+        }
 
+        void start_read()
+        {
+            std::cout<<"In start read - server"<<std::endl;
 
+            // Start an asynchronous operation to read a newline-delimited message.
+            boost::asio::async_read(socket_,
+                                     boost::asio::buffer(input_buffer_),
+                                     boost::bind(
+                                             &tcp_connection::handle_read, this,
+                                             boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
 
 
         }
@@ -51,10 +63,48 @@ class tcp_connection: std::enable_shared_from_this<tcp_connection> {
     private:
         tcp_connection(boost::asio::io_context& io_context): socket_(io_context){}
         void handle_write(const boost::system::error_code& /*error*/,
-                      size_t /*bytes_transferred*/){}
+                      size_t /*bytes_transferred*/){
+            std::cout<<"In handle write - server"<<std::endl;
 
-        tcp::socket socket_;
+            start_read();
+        }
+
+    void handle_read(const boost::system::error_code& ec, std::size_t n)
+    {
+        std::cout<<"In handle read - server"<<std::endl;
+
+        std::cout<<"EC: "<<ec<<std::endl;
+
+        std::cout<<"Ricevuto : "<<input_buffer_<<std::endl;
+        if (!ec)
+        {
+
+            // Extract the newline-delimited message from the buffer.
+            std::string line(input_buffer_.substr(0, n - 1));
+            input_buffer_.erase(0, n);
+
+            // Empty messages are heartbeats and so ignored.
+            if (!line.empty())
+            {
+                std::cout << "Received: " << line << "\n";
+            }
+
+            //start_read();
+            if(line.compare("ciao") == 0){
+                std::cout<<"Stringa ricevuta uguale dal client"<<std::endl;
+                start();
+            }
+        }
+        else
+        {
+            std::cout << "Error on receive: " << ec.message() << "\n";
+        }
+    }
+
+
+    tcp::socket socket_;
         std::string message_;
+        std::string input_buffer_;
 };
 
 

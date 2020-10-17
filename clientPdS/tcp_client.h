@@ -122,6 +122,8 @@ private:
 
     void start_read()
     {
+        std::cout<<"In start read - client"<<std::endl;
+
         // Set a deadline for the read operation.
         deadline_.expires_after(boost::asio::chrono::seconds(30));
 
@@ -136,6 +138,7 @@ private:
 
     void handle_read(const boost::system::error_code& ec, std::size_t n)
     {
+        std::cout<<"In handle read - client"<<std::endl;
         if (stopped_)
             return;
 
@@ -154,10 +157,10 @@ private:
                 std::cout << "Received: " << line << "\n";
             }
 
-            stop(); //aggiunto io ma non sono sicuro perchè sotto c'è questa start_read che mi ripete la lettura e poi
+           // stop(); //aggiunto io ma non sono sicuro perchè sotto c'è questa start_read che mi ripete la lettura e poi
             //mi andrà a fare l'else e ci sarà errore
 
-            start_read();
+            start_write();
         }
         else
         {
@@ -169,16 +172,19 @@ private:
 
     void start_write()
     {
+        std::cout<<"In start write - client"<<std::endl;
         if (stopped_)
             return;
-
+        std::string  data = "ciao";
+        std::cout<<"MESSAGGIO: "<<data<<std::endl;
         // Start an asynchronous operation to send a heartbeat message.
-        boost::asio::async_write(socket_, boost::asio::buffer("\n", 1),
+        boost::asio::async_write(socket_, boost::asio::buffer(data),
                                  boost::bind(&tcp_client::handle_write, this, _1));
     }
 
     void handle_write(const boost::system::error_code& ec)
     {
+        std::cout<<"In handle write - client"<<std::endl;
         if (stopped_)
             return;
 
@@ -186,7 +192,7 @@ private:
         {
             // Wait 10 seconds before sending the next heartbeat.
             heartbeat_timer_.expires_after(boost::asio::chrono::seconds(10));
-            heartbeat_timer_.async_wait(boost::bind(&tcp_client::start_write, this));
+            heartbeat_timer_.async_wait(boost::bind(&tcp_client::start_read, this));
         }
         else
         {
