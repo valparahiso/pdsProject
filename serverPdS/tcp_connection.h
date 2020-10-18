@@ -22,8 +22,10 @@ std::string make_daytime_string()
     return ctime(&now);
 }
 
+//public boost::enable_shared
+//std::std::enable_shared_from_this<tcp_connection> (senza public)
 
-class tcp_connection: std::enable_shared_from_this<tcp_connection> {
+class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
     public:
         typedef boost::shared_ptr<tcp_connection> pointer;
         static pointer create(boost::asio::io_context& io_context){
@@ -39,34 +41,20 @@ class tcp_connection: std::enable_shared_from_this<tcp_connection> {
 
             message_ = make_daytime_string();
             std::cout<<"MESSAGGIO: "<<message_<<std::endl;
-            boost::asio::async_write(socket_, boost::asio::buffer(message_),
-                                 boost::bind(&tcp_connection::handle_write, this,
+           boost::asio::async_write(socket_, boost::asio::buffer(message_),
+                                 boost::bind(&tcp_connection::handle_write, shared_from_this(),
                                              boost::asio::placeholders::error,
-                                             boost::asio::placeholders::bytes_transferred)); //ghghghghgh
+                                             boost::asio::placeholders::bytes_transferred));
            // boost::asio::async_write(socket_, boost::asio::buffer(message_,256), &tcp_connection::handle_write);
         }
 
-        void start_read()
-        {
-            std::cout<<"In start read - server"<<std::endl;
 
-            // Start an asynchronous operation to read a newline-delimited message.
-            boost::asio::async_read(socket_,
-                                     boost::asio::buffer(input_buffer_),
-                                     boost::bind(
-                                             &tcp_connection::handle_read, this,
-                                             boost::asio::placeholders::error, boost::asio::placeholders::bytes_transferred));
-
-
-        }
 
     private:
         tcp_connection(boost::asio::io_context& io_context): socket_(io_context){}
         void handle_write(const boost::system::error_code& /*error*/,
                       size_t /*bytes_transferred*/){
-            std::cout<<"In handle write - server"<<std::endl;
 
-            start_read();
         }
 
     void handle_read(const boost::system::error_code& ec, std::size_t n)
@@ -89,11 +77,6 @@ class tcp_connection: std::enable_shared_from_this<tcp_connection> {
                 std::cout << "Received: " << line << "\n";
             }
 
-            //start_read();
-            if(line.compare("ciao") == 0){
-                std::cout<<"Stringa ricevuta uguale dal client"<<std::endl;
-                start();
-            }
         }
         else
         {

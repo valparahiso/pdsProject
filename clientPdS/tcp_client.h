@@ -10,6 +10,7 @@
 #include <iostream>
 #include <string>
 #include <boost/array.hpp>
+#include <boost/shared_ptr.hpp>
 
 using boost::asio::steady_timer;
 using boost::asio::ip::tcp;
@@ -65,7 +66,7 @@ private:
             socket_.async_connect(endpoint_iter->endpoint(),
                                   boost::bind(&tcp_client::handle_connect,
                                               this, _1, endpoint_iter));
-            std::cout<<"weee"<<std::endl;
+
         }
         else
         {
@@ -157,10 +158,10 @@ private:
                 std::cout << "Received: " << line << "\n";
             }
 
-           // stop(); //aggiunto io ma non sono sicuro perchè sotto c'è questa start_read che mi ripete la lettura e poi
+           //stop(); //aggiunto io ma non sono sicuro perchè sotto c'è questa start_read che mi ripete la lettura e poi
             //mi andrà a fare l'else e ci sarà errore
 
-            start_write();
+         //   start_write();
         }
         else
         {
