@@ -4,8 +4,10 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/mario/Scrivania/pdsProj/clientPdS/main.cpp" "/home/mario/Scrivania/pdsProj/clientPdS/cmake-build-debug/CMakeFiles/clientPdS.dir/main.cpp.o"
-  "/home/mario/Scrivania/pdsProj/clientPdS/tcp_client.cpp" "/home/mario/Scrivania/pdsProj/clientPdS/cmake-build-debug/CMakeFiles/clientPdS.dir/tcp_client.cpp.o"
+  "/home/simo/pdsProject/clientPdS/main.cpp" "/home/simo/pdsProject/clientPdS/cmake-build-debug/CMakeFiles/clientPdS.dir/main.cpp.o"
+  "/home/simo/pdsProject/clientPdS/parameters_exception.cpp" "/home/simo/pdsProject/clientPdS/cmake-build-debug/CMakeFiles/clientPdS.dir/parameters_exception.cpp.o"
+  "/home/simo/pdsProject/clientPdS/tcp_client.cpp" "/home/simo/pdsProject/clientPdS/cmake-build-debug/CMakeFiles/clientPdS.dir/tcp_client.cpp.o"
+  "/home/simo/pdsProject/clientPdS/user.cpp" "/home/simo/pdsProject/clientPdS/cmake-build-debug/CMakeFiles/clientPdS.dir/user.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 

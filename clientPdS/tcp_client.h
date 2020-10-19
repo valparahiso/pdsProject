@@ -18,15 +18,18 @@ using boost::asio::ip::tcp;
 class tcp_client
 {
 public:
-    tcp_client(boost::asio::io_context& io_context)
+
+    tcp_client(boost::asio::io_context& io_context, std::string username, std::string password)
             : stopped_(false),
               socket_(io_context),
               deadline_(io_context),
-              heartbeat_timer_(io_context)
+              heartbeat_timer_(io_context),
+              username_(username),
+              password_(password)
     {
     }
 
-    // Called by the user of the client class to initiate the connection process.
+    // Called by the user of the user class to initiate the connection process.
     // The endpoints will have been obtained using a tcp::resolver.
     void start(tcp::resolver::results_type endpoints)
     {
@@ -41,7 +44,7 @@ public:
     }
 
     // This function terminates all the actors to shut down the connection. It
-    // may be called by the user of the client class, or by the class itself in
+    // may be called by the user of the user class, or by the class itself in
     // response to graceful termination or an unrecoverable error.
     void stop()
     {
@@ -70,7 +73,7 @@ private:
         }
         else
         {
-            // There are no more endpoints to try. Shut down the client.
+            // There are no more endpoints to try. Shut down the user.
             stop();
         }
     }
@@ -110,20 +113,21 @@ private:
         {
             std::cout << "Connected to " << endpoint_iter->endpoint() << "\n";
 
+            start_write(this->username_ + "-" + this->password_ + "\n");
             // Start the input actor.
-            start_read();
-            std::cout<<"Lettura"<<std::endl;
+            //start_read();
+            //std::cout<<"Lettura"<<std::endl;
 
             // Start the heartbeat actor.
             //start_write();
-            std::cout<<"Scrittura"<<std::endl;
+            //std::cout<<"Scrittura"<<std::endl;
 
         }
     }
 
     void start_read()
     {
-        std::cout<<"In start read - client"<<std::endl;
+        std::cout<<"In start read - user"<<std::endl;
 
         // Set a deadline for the read operation.
         deadline_.expires_after(boost::asio::chrono::seconds(30));
@@ -139,7 +143,7 @@ private:
 
     void handle_read(const boost::system::error_code& ec, std::size_t n)
     {
-        std::cout<<"In handle read - client"<<std::endl;
+        std::cout<<"In handle read - user"<<std::endl;
         if (stopped_)
             return;
 
@@ -161,7 +165,7 @@ private:
            //stop(); //aggiunto io ma non sono sicuro perchè sotto c'è questa start_read che mi ripete la lettura e poi
             //mi andrà a fare l'else e ci sarà errore
 
-         //   start_write();
+            start_write(" ");
         }
         else
         {
@@ -171,12 +175,12 @@ private:
         }
     }
 
-    void start_write()
+    void start_write(std::string data)
     {
-        std::cout<<"In start write - client"<<std::endl;
+        std::cout<<"In start write - user"<<std::endl;
         if (stopped_)
             return;
-        std::string  data = "ciao";
+
         std::cout<<"MESSAGGIO: "<<data<<std::endl;
         // Start an asynchronous operation to send a heartbeat message.
         boost::asio::async_write(socket_, boost::asio::buffer(data),
@@ -185,7 +189,7 @@ private:
 
     void handle_write(const boost::system::error_code& ec)
     {
-        std::cout<<"In handle write - client"<<std::endl;
+        std::cout<<"In handle write - user"<<std::endl;
         if (stopped_)
             return;
 
@@ -234,4 +238,6 @@ private:
     std::string input_buffer_;
     steady_timer deadline_;
     steady_timer heartbeat_timer_;
+    std::string username_;
+    std::string password_;
 };

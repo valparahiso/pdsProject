@@ -41,10 +41,16 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
 
             message_ = make_daytime_string();
             std::cout<<"MESSAGGIO: "<<message_<<std::endl;
-           boost::asio::async_write(socket_, boost::asio::buffer(message_),
+
+            boost::asio::async_read_until(socket_,
+                                          boost::asio::dynamic_buffer(input_buffer_), '\n',
+                                          boost::bind(&tcp_connection::handle_read, shared_from_this(), boost::asio::placeholders::error,
+                                                      boost::asio::placeholders::bytes_transferred));
+
+           /*boost::asio::async_write(socket_, boost::asio::buffer(message_),
                                  boost::bind(&tcp_connection::handle_write, shared_from_this(),
                                              boost::asio::placeholders::error,
-                                             boost::asio::placeholders::bytes_transferred));
+                                             boost::asio::placeholders::bytes_transferred));*/
            // boost::asio::async_write(socket_, boost::asio::buffer(message_,256), &tcp_connection::handle_write);
         }
 
@@ -54,6 +60,11 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
         tcp_connection(boost::asio::io_context& io_context): socket_(io_context){}
         void handle_write(const boost::system::error_code& /*error*/,
                       size_t /*bytes_transferred*/){
+            std::cout<<"In handle write - sevrer "<<std::endl;
+            boost::asio::async_read_until(socket_,
+                                          boost::asio::dynamic_buffer(input_buffer_), '\n',
+                                          boost::bind(&tcp_connection::handle_read, shared_from_this(), boost::asio::placeholders::error,
+                                                      boost::asio::placeholders::bytes_transferred));
 
         }
 
@@ -75,6 +86,14 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
             if (!line.empty())
             {
                 std::cout << "Received: " << line << "\n";
+                std::istringstream iss(line);
+                copy(std::istream_iterator<std::string>(iss),
+                     std::istream_iterator<std::string>(),
+                     std::ostream_iterator<std::string>(std::cout, "\n"));
+
+
+
+
             }
 
         }

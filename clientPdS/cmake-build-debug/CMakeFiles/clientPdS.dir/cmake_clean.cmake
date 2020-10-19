@@ -1,6 +1,8 @@
 file(REMOVE_RECURSE
   "CMakeFiles/clientPdS.dir/main.cpp.o"
+  "CMakeFiles/clientPdS.dir/parameters_exception.cpp.o"
   "CMakeFiles/clientPdS.dir/tcp_client.cpp.o"
+  "CMakeFiles/clientPdS.dir/user.cpp.o"
   "clientPdS"
   "clientPdS.pdb"
 )

@@ -59,19 +59,19 @@ cmake_force:
 SHELL = /bin/sh
 
 # The CMake executable.
-CMAKE_COMMAND = /home/mario/Scaricati/CLion-2020.2.4/clion-2020.2.4/bin/cmake/linux/bin/cmake
+CMAKE_COMMAND = /home/simo/Scaricati/clion-2020.2.4/bin/cmake/linux/bin/cmake
 
 # The command to remove a file.
-RM = /home/mario/Scaricati/CLion-2020.2.4/clion-2020.2.4/bin/cmake/linux/bin/cmake -E rm -f
+RM = /home/simo/Scaricati/clion-2020.2.4/bin/cmake/linux/bin/cmake -E rm -f
 
 # Escaping for special characters.
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/mario/Scrivania/pdsProj/clientPdS
+CMAKE_SOURCE_DIR = /home/simo/pdsProject/clientPdS
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/mario/Scrivania/pdsProj/clientPdS/cmake-build-debug
+CMAKE_BINARY_DIR = /home/simo/pdsProject/clientPdS/cmake-build-debug
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -79,7 +79,7 @@ CMAKE_BINARY_DIR = /home/mario/Scrivania/pdsProj/clientPdS/cmake-build-debug
 # Special rule for the target rebuild_cache
 rebuild_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
-	/home/mario/Scaricati/CLion-2020.2.4/clion-2020.2.4/bin/cmake/linux/bin/cmake --regenerate-during-build -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+	/home/simo/Scaricati/clion-2020.2.4/bin/cmake/linux/bin/cmake --regenerate-during-build -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
 .PHONY : rebuild_cache
 
 # Special rule for the target rebuild_cache
@@ -90,7 +90,7 @@ rebuild_cache/fast: rebuild_cache
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
-	/home/mario/Scaricati/CLion-2020.2.4/clion-2020.2.4/bin/cmake/linux/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
+	/home/simo/Scaricati/clion-2020.2.4/bin/cmake/linux/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
 .PHONY : edit_cache
 
 # Special rule for the target edit_cache
@@ -100,9 +100,9 @@ edit_cache/fast: edit_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/mario/Scrivania/pdsProj/clientPdS/cmake-build-debug/CMakeFiles /home/mario/Scrivania/pdsProj/clientPdS/cmake-build-debug/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/simo/pdsProject/clientPdS/cmake-build-debug/CMakeFiles /home/simo/pdsProject/clientPdS/cmake-build-debug/CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/mario/Scrivania/pdsProj/clientPdS/cmake-build-debug/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/simo/pdsProject/clientPdS/cmake-build-debug/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -170,6 +170,33 @@ main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/clientPdS.dir/build.make CMakeFiles/clientPdS.dir/main.cpp.s
 .PHONY : main.cpp.s
 
+parameters_exception.o: parameters_exception.cpp.o
+
+.PHONY : parameters_exception.o
+
+# target to build an object file
+parameters_exception.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/clientPdS.dir/build.make CMakeFiles/clientPdS.dir/parameters_exception.cpp.o
+.PHONY : parameters_exception.cpp.o
+
+parameters_exception.i: parameters_exception.cpp.i
+
+.PHONY : parameters_exception.i
+
+# target to preprocess a source file
+parameters_exception.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/clientPdS.dir/build.make CMakeFiles/clientPdS.dir/parameters_exception.cpp.i
+.PHONY : parameters_exception.cpp.i
+
+parameters_exception.s: parameters_exception.cpp.s
+
+.PHONY : parameters_exception.s
+
+# target to generate assembly for a file
+parameters_exception.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/clientPdS.dir/build.make CMakeFiles/clientPdS.dir/parameters_exception.cpp.s
+.PHONY : parameters_exception.cpp.s
+
 tcp_client.o: tcp_client.cpp.o
 
 .PHONY : tcp_client.o
@@ -197,6 +224,33 @@ tcp_client.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/clientPdS.dir/build.make CMakeFiles/clientPdS.dir/tcp_client.cpp.s
 .PHONY : tcp_client.cpp.s
 
+user.o: user.cpp.o
+
+.PHONY : user.o
+
+# target to build an object file
+user.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/clientPdS.dir/build.make CMakeFiles/clientPdS.dir/user.cpp.o
+.PHONY : user.cpp.o
+
+user.i: user.cpp.i
+
+.PHONY : user.i
+
+# target to preprocess a source file
+user.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/clientPdS.dir/build.make CMakeFiles/clientPdS.dir/user.cpp.i
+.PHONY : user.cpp.i
+
+user.s: user.cpp.s
+
+.PHONY : user.s
+
+# target to generate assembly for a file
+user.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/clientPdS.dir/build.make CMakeFiles/clientPdS.dir/user.cpp.s
+.PHONY : user.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -209,9 +263,15 @@ help:
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
+	@echo "... parameters_exception.o"
+	@echo "... parameters_exception.i"
+	@echo "... parameters_exception.s"
 	@echo "... tcp_client.o"
 	@echo "... tcp_client.i"
 	@echo "... tcp_client.s"
+	@echo "... user.o"
+	@echo "... user.i"
+	@echo "... user.s"
 .PHONY : help
 
 
