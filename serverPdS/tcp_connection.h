@@ -13,17 +13,8 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/asio.hpp>
+#include <sqlite3.h>
 using boost::asio::ip::tcp;
-
-std::string make_daytime_string()
-{
-    using namespace std; // For time_t, time and ctime;
-    time_t now = time(0);
-    return ctime(&now);
-}
-
-//public boost::enable_shared
-//std::std::enable_shared_from_this<tcp_connection> (senza public)
 
 class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
     public:
@@ -39,42 +30,120 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
         void start(){
             std::cout<<"In start -server"<<std::endl;
 
-            message_ = make_daytime_string();
-            std::cout<<"MESSAGGIO: "<<message_<<std::endl;
-
             boost::asio::async_read_until(socket_,
                                           boost::asio::dynamic_buffer(input_buffer_), '\n',
-                                          boost::bind(&tcp_connection::handle_read, shared_from_this(), boost::asio::placeholders::error,
+                                          boost::bind(&tcp_connection::authentication, shared_from_this(), boost::asio::placeholders::error,
                                                       boost::asio::placeholders::bytes_transferred));
-
-           /*boost::asio::async_write(socket_, boost::asio::buffer(message_),
-                                 boost::bind(&tcp_connection::handle_write, shared_from_this(),
-                                             boost::asio::placeholders::error,
-                                             boost::asio::placeholders::bytes_transferred));*/
-           // boost::asio::async_write(socket_, boost::asio::buffer(message_,256), &tcp_connection::handle_write);
         }
 
 
 
     private:
         tcp_connection(boost::asio::io_context& io_context): socket_(io_context){}
-        void handle_write(const boost::system::error_code& /*error*/,
-                      size_t /*bytes_transferred*/){
-            std::cout<<"In handle write - sevrer "<<std::endl;
-            /*boost::asio::async_read_until(socket_,
-                                          boost::asio::dynamic_buffer(input_buffer_), '\n',
-                                          boost::bind(&tcp_connection::handle_read, shared_from_this(), boost::asio::placeholders::error,
-                                                      boost::asio::placeholders::bytes_transferred));*/
 
+        void authentication(const boost::system::error_code& ec, std::size_t n)
+        {
+            std::cout<<"STARTING AUTHENTICATION:"<<std::endl;
+
+            std::cout<<"EC: "<<ec<<std::endl;
+
+            if (!ec)
+            {
+
+                // Extract the newline-delimited message from the buffer.
+                std::string line(input_buffer_.substr(0, n - 1));
+                input_buffer_.erase(0, n);
+
+                // Empty messages are heartbeats and so ignored.
+                if (!line.empty())
+                {
+                    std::stringstream ss(line);
+
+                    std::string username;
+                    std::getline(ss, username, '-');
+                    std::cout << "Username: " << username << "\n";
+
+                    std::string password;
+                    std::getline(ss, password, '-');
+                    std::cout << "Password: " << password << "\n";
+
+                    std::string message = this->login_db(username, password) ? "user_accepted\n" : "user_refused\n";
+
+                    boost::asio::async_write(socket_, boost::asio::buffer(message),
+                                             boost::bind(&tcp_connection::get_directory_and_command, shared_from_this(),
+                                                         boost::asio::placeholders::error,
+                                                         boost::asio::placeholders::bytes_transferred));
+
+                }
+
+            }
+            else
+            {
+                std::cout << "Error on receive: " << ec.message() << "\n";
+            }
         }
 
-    void handle_read(const boost::system::error_code& ec, std::size_t n)
+        bool login_db(std::string username, std::string password){
+            sqlite3 *db;
+            int rc;
+            char *zErrMsg = 0;
+
+            rc = sqlite3_open("db/server.db", &db);
+
+            if( rc )
+            {
+                std::cout<<"Can't open database: "<<sqlite3_errmsg(db)<<"\n";
+            }
+            else
+            {
+                std::cout<<"Open database successfully\n\n";
+            }
+
+            std::string query_string = "select count(*) from user where username = '" + username + "' and password = '" + password + "'";
+            const char *query = query_string.c_str();
+            std::cout<<query<<std::endl;
+
+            rc = sqlite3_exec(db, query, check_login, nullptr, &zErrMsg);
+            if( rc!=SQLITE_OK )
+            {
+                std::cout<<"SQL error: "<<sqlite3_errmsg(db)<<"\n";
+                sqlite3_free(zErrMsg);
+                sqlite3_close(db);
+                return false;
+            }
+
+            sqlite3_close(db);
+            return true;
+        }
+
+        static int check_login(void *NotUsed, int argc, char **argv, char **azColName)
+        {
+            std::cout<<"NUmero di righe : "<<argc<<"\n"<<azColName[0]<<"       "<<argv[0]<<std::endl;
+            if(std::string(argv[0]) == "1"){
+                std::cout<<"Utente presente nel DB!"<<std::endl;
+                return 0;
+            } else {
+                std::cout<<"Utente NON presente nel DB!"<<std::endl;
+                return 1;
+            }
+        }
+
+    void get_directory_and_command(const boost::system::error_code& /*error*/,
+                                   size_t /*bytes_transferred*/){
+        std::cout<<"READING DIRECTORY AND COMMAND FROM THE CLIENT"<<std::endl;
+        boost::asio::async_read_until(socket_,
+                                      boost::asio::dynamic_buffer(input_buffer_), '\n',
+                                      boost::bind(&tcp_connection::menu, shared_from_this(), boost::asio::placeholders::error,
+                                                  boost::asio::placeholders::bytes_transferred));
+
+    }
+
+    void menu(const boost::system::error_code& ec, std::size_t n)
     {
-        std::cout<<"In handle read - server"<<std::endl;
+        /*std::cout<<"SELECTING COMMAND:"<<std::endl;
 
         std::cout<<"EC: "<<ec<<std::endl;
 
-        std::cout<<"Ricevuto : "<<input_buffer_<<std::endl;
         if (!ec)
         {
 
@@ -85,35 +154,18 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
             // Empty messages are heartbeats and so ignored.
             if (!line.empty())
             {
-                std::stringstream ss(line);
-
-                std::string username;
-                std::getline(ss, username, '-');
-                std::cout << "Username: " << username << "\n";
-
-                std::string password;
-                std::getline(ss, password, '-');
-                std::cout << "Password: " << password << "\n";
-
-                //TODO Check sul database
-
-                boost::asio::async_write(socket_, boost::asio::buffer("user_accepted\n"),
-                                         boost::bind(&tcp_connection::handle_write, shared_from_this(),
-                                                     boost::asio::placeholders::error,
-                                                     boost::asio::placeholders::bytes_transferred));
-
+                std::cout << "Error on receive: " << ec.message() << "\n";
             }
-
         }
         else
         {
             std::cout << "Error on receive: " << ec.message() << "\n";
-        }
+        }*/
     }
 
 
-    tcp::socket socket_;
-        std::string message_;
+
+        tcp::socket socket_;
         std::string input_buffer_;
 };
 

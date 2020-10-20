@@ -59,7 +59,7 @@ private:
     void start_communication(){
         boost::asio::io_context io_context;
         tcp::resolver resolver(io_context);
-        tcp_client client = tcp_client(io_context, username, password);
+        tcp_client client = tcp_client(io_context, username, password, directory, command);
 
         client.start(resolver.resolve("127.0.0.1", "8001"));
         io_context.run();

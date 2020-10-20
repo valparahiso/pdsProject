@@ -19,13 +19,15 @@ class tcp_client
 {
 public:
 
-    tcp_client(boost::asio::io_context& io_context, std::string username, std::string password)
+    tcp_client(boost::asio::io_context& io_context, std::string username, std::string password, std::string directory, std::string command)
             : stopped_(false),
               socket_(io_context),
               deadline_(io_context),
               heartbeat_timer_(io_context),
               username_(username),
-              password_(password)
+              password_(password),
+              directory_(directory),
+              command_(command)
     {
     }
 
@@ -113,7 +115,9 @@ private:
         {
             std::cout << "Connected to " << endpoint_iter->endpoint() << "\n";
 
-            start_write(this->username_ + "-" + this->password_ + "\n");
+            this->operation_ = "login";
+            write_data(this->username_ + "-" + this->password_ + "\n");
+            //start_write(this->username_ + "-" + this->password_ + "\n");
             // Start the input actor.
             //start_read();
             //std::cout<<"Lettura"<<std::endl;
@@ -125,9 +129,9 @@ private:
         }
     }
 
-    void start_read()
+    void read_data()
     {
-        std::cout<<"In start read - user"<<std::endl;
+        std::cout<<"READING DATA"<<std::endl;
 
         // Set a deadline for the read operation.
         deadline_.expires_after(boost::asio::chrono::seconds(30));
@@ -136,12 +140,12 @@ private:
         // Start an asynchronous operation to read a newline-delimited message.
         boost::asio::async_read_until(socket_,
                                       boost::asio::dynamic_buffer(input_buffer_), '\n',
-                                      boost::bind(&tcp_client::handle_read, this, _1, _2));
+                                      boost::bind(&tcp_client::handle_read_data, this, _1, _2, operation_));
 
 
     }
 
-    void handle_read(const boost::system::error_code& ec, std::size_t n)
+    void handle_read_data(const boost::system::error_code& ec, std::size_t n, std::string operation)
     {
         std::cout<<"In handle read - user"<<std::endl;
         if (stopped_)
@@ -160,17 +164,19 @@ private:
             if (!line.empty())
             {
                 std::cout << "Received: " << line << "\n";
-                if(line.compare("user_accepted")==0){
-                    std::cout<<"User Accepted! "<<std::endl;
-                } else {
-                    std::cout<<"Credenziali errate! Chiusura socket . . .  "<<std::endl;
-                    stop();
+                if(operation == "login") {
+
+                    if (line.compare("user_accepted") == 0) {
+                        std::cout << "User Accepted! " << std::endl;
+                        this->operation_ = "logged";
+                        write_data(directory_ + "-" + command_ + "\n");
+
+                    } else {
+                        std::cout << "Credenziali errate! Chiusura socket . . .  " << std::endl;
+                        stop();
+                    }
                 }
             }
-
-           //stop(); //aggiunto io ma non sono sicuro perchè sotto c'è questa start_read che mi ripete la lettura e poi
-           //mi andrà a fare l'else e ci sarà errore
-
 
         }
         else
@@ -181,21 +187,22 @@ private:
         }
     }
 
-    void start_write(std::string data)
+    void write_data(std::string data)
     {
-        std::cout<<"In start write - user"<<std::endl;
+        std::cout<<"SENDING DATA TO SERVER "<<std::endl;
         if (stopped_)
             return;
 
         std::cout<<"MESSAGGIO: "<<data<<std::endl;
         // Start an asynchronous operation to send a heartbeat message.
         boost::asio::async_write(socket_, boost::asio::buffer(data),
-                                 boost::bind(&tcp_client::handle_write, this, _1));
+                                 boost::bind(&tcp_client::handle_write_data, this, _1, operation_));
     }
 
-    void handle_write(const boost::system::error_code& ec)
+    void handle_write_data(const boost::system::error_code& ec, std::string operation)
     {
-        std::cout<<"In handle write - user"<<std::endl;
+        std::cout<<"CHECKING AUTHENTICATION READING FROM SERVER"<<std::endl;
+        std::cout<<"OPERATION OF "<<operation<<std::endl;
         if (stopped_)
             return;
 
@@ -203,7 +210,14 @@ private:
         {
             // Wait 10 seconds before sending the next heartbeat.
             heartbeat_timer_.expires_after(boost::asio::chrono::seconds(1));
-            heartbeat_timer_.async_wait(boost::bind(&tcp_client::start_read, this));
+            if(operation == "login")
+            {
+                heartbeat_timer_.async_wait(boost::bind(&tcp_client::read_data, this));
+            } else if(operation == "logged")
+            {
+                //heartbeat_timer_.async_wait(boost::bind(&tcp_client::read_data, this));
+            }
+
         }
         else
         {
@@ -246,4 +260,7 @@ private:
     steady_timer heartbeat_timer_;
     std::string username_;
     std::string password_;
+    std::string operation_;
+    std::string directory_;
+    std::string command_;
 };
