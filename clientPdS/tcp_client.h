@@ -160,12 +160,18 @@ private:
             if (!line.empty())
             {
                 std::cout << "Received: " << line << "\n";
+                if(line.compare("user_accepted")==0){
+                    std::cout<<"User Accepted! "<<std::endl;
+                } else {
+                    std::cout<<"Credenziali errate! Chiusura socket . . .  "<<std::endl;
+                    stop();
+                }
             }
 
            //stop(); //aggiunto io ma non sono sicuro perchè sotto c'è questa start_read che mi ripete la lettura e poi
-            //mi andrà a fare l'else e ci sarà errore
+           //mi andrà a fare l'else e ci sarà errore
 
-            start_write(" ");
+
         }
         else
         {
@@ -196,7 +202,7 @@ private:
         if (!ec)
         {
             // Wait 10 seconds before sending the next heartbeat.
-            heartbeat_timer_.expires_after(boost::asio::chrono::seconds(10));
+            heartbeat_timer_.expires_after(boost::asio::chrono::seconds(1));
             heartbeat_timer_.async_wait(boost::bind(&tcp_client::start_read, this));
         }
         else

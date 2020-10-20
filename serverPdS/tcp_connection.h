@@ -61,10 +61,10 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
         void handle_write(const boost::system::error_code& /*error*/,
                       size_t /*bytes_transferred*/){
             std::cout<<"In handle write - sevrer "<<std::endl;
-            boost::asio::async_read_until(socket_,
+            /*boost::asio::async_read_until(socket_,
                                           boost::asio::dynamic_buffer(input_buffer_), '\n',
                                           boost::bind(&tcp_connection::handle_read, shared_from_this(), boost::asio::placeholders::error,
-                                                      boost::asio::placeholders::bytes_transferred));
+                                                      boost::asio::placeholders::bytes_transferred));*/
 
         }
 
@@ -85,14 +85,22 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
             // Empty messages are heartbeats and so ignored.
             if (!line.empty())
             {
-                std::cout << "Received: " << line << "\n";
-                std::istringstream iss(line);
-                copy(std::istream_iterator<std::string>(iss),
-                     std::istream_iterator<std::string>(),
-                     std::ostream_iterator<std::string>(std::cout, "\n"));
+                std::stringstream ss(line);
 
+                std::string username;
+                std::getline(ss, username, '-');
+                std::cout << "Username: " << username << "\n";
 
+                std::string password;
+                std::getline(ss, password, '-');
+                std::cout << "Password: " << password << "\n";
 
+                //TODO Check sul database
+
+                boost::asio::async_write(socket_, boost::asio::buffer("user_accepted\n"),
+                                         boost::bind(&tcp_connection::handle_write, shared_from_this(),
+                                                     boost::asio::placeholders::error,
+                                                     boost::asio::placeholders::bytes_transferred));
 
             }
 

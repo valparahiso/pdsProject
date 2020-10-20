@@ -12,9 +12,7 @@ int main(int argc, char* argv[])
         }
         user user1 = (argc == 2) ? user(std::string(argv[1]), "default") : user(std::string(argv[1]), std::string(argv[2]));
 
-        while(!user1.authentication()){
-            std::cout<<"Credenziali errate, riprovare!"<<std::endl;
-        }
+        user1.authentication();
 
         if(argc == 2){ // specificata solo la directory ---> COMANDO DI DEFAULT
             std::cout<<"DEFAULT "<<std::endl;

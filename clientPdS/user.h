@@ -18,15 +18,14 @@ public:
         }
     }
 
-    bool authentication(){
+    void authentication(){
         std::cout << "Please, enter your username: ";
         std::getline (std::cin,this->username);
 
         std::cout << "Please, enter your password: ";
         std::getline (std::cin,this->password);
 
-        start_communication("authentication");
-        return true;
+        start_communication();
     }
 
     std::string get_username(){
@@ -57,7 +56,7 @@ private:
         } return false;
     }
 
-    void start_communication(std::string option){
+    void start_communication(){
         boost::asio::io_context io_context;
         tcp::resolver resolver(io_context);
         tcp_client client = tcp_client(io_context, username, password);
