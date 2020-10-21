@@ -117,15 +117,6 @@ private:
 
             this->operation_ = "login";
             write_data(this->username_ + "-" + this->password_ + "\n");
-            //start_write(this->username_ + "-" + this->password_ + "\n");
-            // Start the input actor.
-            //start_read();
-            //std::cout<<"Lettura"<<std::endl;
-
-            // Start the heartbeat actor.
-            //start_write();
-            //std::cout<<"Scrittura"<<std::endl;
-
         }
     }
 
@@ -140,14 +131,14 @@ private:
         // Start an asynchronous operation to read a newline-delimited message.
         boost::asio::async_read_until(socket_,
                                       boost::asio::dynamic_buffer(input_buffer_), '\n',
-                                      boost::bind(&tcp_client::handle_read_data, this, _1, _2, operation_));
+                                      boost::bind(&tcp_client::handle_read_data, this, _1, _2));
 
 
     }
 
-    void handle_read_data(const boost::system::error_code& ec, std::size_t n, std::string operation)
+    void handle_read_data(const boost::system::error_code& ec, std::size_t n)
     {
-        std::cout<<"In handle read - user"<<std::endl;
+        std::cout<<"HANDLE READ WITH OPERATION: "<<operation_<<std::endl;
         if (stopped_)
             return;
 
@@ -164,11 +155,11 @@ private:
             if (!line.empty())
             {
                 std::cout << "Received: " << line << "\n";
-                if(operation == "login") {
+                if(operation_ == "login") {
 
-                    if (line.compare("user_accepted") == 0) {
+                    if (line=="user_accepted") {
                         std::cout << "User Accepted! " << std::endl;
-                        this->operation_ = "logged";
+                        operation_ = "logged";
                         write_data(directory_ + "-" + command_ + "\n");
 
                     } else {
@@ -196,13 +187,12 @@ private:
         std::cout<<"MESSAGGIO: "<<data<<std::endl;
         // Start an asynchronous operation to send a heartbeat message.
         boost::asio::async_write(socket_, boost::asio::buffer(data),
-                                 boost::bind(&tcp_client::handle_write_data, this, _1, operation_));
+                                 boost::bind(&tcp_client::handle_write_data, this, _1));
     }
 
-    void handle_write_data(const boost::system::error_code& ec, std::string operation)
+    void handle_write_data(const boost::system::error_code& ec)
     {
-        std::cout<<"CHECKING AUTHENTICATION READING FROM SERVER"<<std::endl;
-        std::cout<<"OPERATION OF "<<operation<<std::endl;
+        std::cout<<"HANDLE WRITE WITH OPERATION: "<<operation_<<std::endl;
         if (stopped_)
             return;
 
@@ -210,10 +200,10 @@ private:
         {
             // Wait 10 seconds before sending the next heartbeat.
             heartbeat_timer_.expires_after(boost::asio::chrono::seconds(1));
-            if(operation == "login")
+            if(operation_ == "login")
             {
                 heartbeat_timer_.async_wait(boost::bind(&tcp_client::read_data, this));
-            } else if(operation == "logged")
+            } else if(operation_ == "logged")
             {
                 //heartbeat_timer_.async_wait(boost::bind(&tcp_client::read_data, this));
             }

@@ -28,12 +28,9 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
         }
 
         void start(){
-            std::cout<<"In start -server"<<std::endl;
-
-            boost::asio::async_read_until(socket_,
-                                          boost::asio::dynamic_buffer(input_buffer_), '\n',
-                                          boost::bind(&tcp_connection::authentication, shared_from_this(), boost::asio::placeholders::error,
-                                                      boost::asio::placeholders::bytes_transferred));
+            std::cout<<"- Starting server . . ."<<std::endl;
+            operation_ = "login";
+            read_data();
         }
 
 
@@ -41,15 +38,40 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
     private:
         tcp_connection(boost::asio::io_context& io_context): socket_(io_context){}
 
-        void authentication(const boost::system::error_code& ec, std::size_t n)
+
+        void write_data(std::string data)
         {
-            std::cout<<"STARTING AUTHENTICATION:"<<std::endl;
+            // Start an asynchronous operation to send a heartbeat message.
+            boost::asio::async_write(socket_, boost::asio::buffer(data),
+                                     boost::bind(&tcp_connection::handle_write_data,
+                                                 shared_from_this(),
+                                                 boost::asio::placeholders::error,
+                                                 boost::asio::placeholders::bytes_transferred));
+        }
 
-            std::cout<<"EC: "<<ec<<std::endl;
+        void read_data()
+        {
+            // Start an asynchronous operation to read a newline-delimited message.
+            boost::asio::async_read_until(socket_,
+                                          boost::asio::dynamic_buffer(input_buffer_), '\n',
+                                          boost::bind(&tcp_connection::handle_read_data, shared_from_this(), boost::asio::placeholders::error,
+                                                      boost::asio::placeholders::bytes_transferred));
 
+
+        }
+
+        void handle_write_data(const boost::system::error_code& /*error*/, size_t /*bytes_transferred*/){
+            if(operation_ == "logged"){
+                read_data();
+            } else {
+                socket_.release(); // Non so se è corretto dobbiamo trovare il modo di rilasciare le risorse del socket da parte del server SENZA CHIUDERLO!
+            }
+        }
+
+        void handle_read_data(const boost::system::error_code& ec, std::size_t n)
+        {
             if (!ec)
             {
-
                 // Extract the newline-delimited message from the buffer.
                 std::string line(input_buffer_.substr(0, n - 1));
                 input_buffer_.erase(0, n);
@@ -59,27 +81,44 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
                 {
                     std::stringstream ss(line);
 
-                    std::string username;
-                    std::getline(ss, username, '-');
-                    std::cout << "Username: " << username << "\n";
+                    if(operation_=="login") {
+                        std::cout<<"- Reading Username and Password . . . .     ";
 
-                    std::string password;
-                    std::getline(ss, password, '-');
-                    std::cout << "Password: " << password << "\n";
+                        std::getline(ss, username_, '-');
+                        std::getline(ss, password_, '-');
+                        std::cout << "USERNAME: "<<username_<<"     PASSWORD: " << password_ <<" . . . ."<<std::endl;
 
-                    std::string message = this->login_db(username, password) ? "user_accepted\n" : "user_refused\n";
+                        std::string message = this->login_db(username_, password_) ? "user_accepted\n" : "user_refused\n";
 
-                    boost::asio::async_write(socket_, boost::asio::buffer(message),
-                                             boost::bind(&tcp_connection::get_directory_and_command, shared_from_this(),
-                                                         boost::asio::placeholders::error,
-                                                         boost::asio::placeholders::bytes_transferred));
+                        write_data(message);
+
+                    } else if(operation_ == "logged"){
+
+                        std::cout<<"- Reading Directory and Command . . . .     ";
+                        std::getline(ss, directory_, '-');
+                        std::getline(ss, command_, '-');
+                        std::cout << "DIRECTORY: "<<directory_<<"     COMMAND: " <<command_ <<" . . . ."<<std::endl;
+
+                        if(command_ == "check_validity"){
+
+                        } else if(command_ == "default"){
+
+                        } else if(command_ == "restore"){
+
+                        } else {
+                            //COMANDO ERRATO.
+                        }
+
+                    }
 
                 }
 
             }
             else
             {
-                std::cout << "Error on receive: " << ec.message() << "\n";
+                std::cout<<"Error on receive: "<<std::endl;
+                std::cout << "Error number " << ec <<std::endl;
+                std::cout << "Error message " << ec.message() <<std::endl;
             }
         }
 
@@ -92,16 +131,15 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
 
             if( rc )
             {
-                std::cout<<"Can't open database: "<<sqlite3_errmsg(db)<<"\n";
+                std::cout<<"- Can't open database: "<<sqlite3_errmsg(db)<<std::endl;
             }
             else
             {
-                std::cout<<"Open database successfully\n\n";
+                std::cout<<"- Opening database . . . .     ";
             }
 
             std::string query_string = "select count(*) from user where username = '" + username + "' and password = '" + password + "'";
             const char *query = query_string.c_str();
-            std::cout<<query<<std::endl;
 
             rc = sqlite3_exec(db, query, check_login, nullptr, &zErrMsg);
             if( rc!=SQLITE_OK )
@@ -113,60 +151,30 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
             }
 
             sqlite3_close(db);
+            operation_ = "logged";
             return true;
         }
 
         static int check_login(void *NotUsed, int argc, char **argv, char **azColName)
         {
-            std::cout<<"NUmero di righe : "<<argc<<"\n"<<azColName[0]<<"       "<<argv[0]<<std::endl;
             if(std::string(argv[0]) == "1"){
-                std::cout<<"Utente presente nel DB!"<<std::endl;
+                std::cout<<"Utente presente nel DB . . . ."<<std::endl;
                 return 0;
             } else {
-                std::cout<<"Utente NON presente nel DB!"<<std::endl;
+                std::cout<<"Utente NON presente nel DB . . . ."<<std::endl;
                 return 1;
             }
         }
 
-    void get_directory_and_command(const boost::system::error_code& /*error*/,
-                                   size_t /*bytes_transferred*/){
-        std::cout<<"READING DIRECTORY AND COMMAND FROM THE CLIENT"<<std::endl;
-        boost::asio::async_read_until(socket_,
-                                      boost::asio::dynamic_buffer(input_buffer_), '\n',
-                                      boost::bind(&tcp_connection::menu, shared_from_this(), boost::asio::placeholders::error,
-                                                  boost::asio::placeholders::bytes_transferred));
-
-    }
-
-    void menu(const boost::system::error_code& ec, std::size_t n)
-    {
-        /*std::cout<<"SELECTING COMMAND:"<<std::endl;
-
-        std::cout<<"EC: "<<ec<<std::endl;
-
-        if (!ec)
-        {
-
-            // Extract the newline-delimited message from the buffer.
-            std::string line(input_buffer_.substr(0, n - 1));
-            input_buffer_.erase(0, n);
-
-            // Empty messages are heartbeats and so ignored.
-            if (!line.empty())
-            {
-                std::cout << "Error on receive: " << ec.message() << "\n";
-            }
-        }
-        else
-        {
-            std::cout << "Error on receive: " << ec.message() << "\n";
-        }*/
-    }
-
-
-
         tcp::socket socket_;
         std::string input_buffer_;
+        std::string operation_;
+        std::string directory_;
+        std::string command_;
+        std::string username_;
+        std::string password_;
+
+
 };
 
 

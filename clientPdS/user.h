@@ -51,7 +51,7 @@ private:
     std::string directory;
 
     bool check_command(){
-        if(this->command.compare("default")==0 || this->command.compare("check_validity")==0 || this->command.compare("restore")==0){
+        if(command=="default" || command=="check_validity" || command=="restore"){
             return true;
         } return false;
     }
