@@ -6,42 +6,20 @@
 #define CLIENTPDS_USER_H
 
 #include <iostream>
+#include <boost/filesystem.hpp>
 #include "parameters_exception.h"
+#include "directory_exception.h"
 #include "tcp_client.h"
 
 class user {
 public:
     user(std::string directory, std::string command) : directory(directory), command(command){
-        if(!this->check_command()){
-            std::cout<<"Comando errato."<<std::endl;
-            throw parameters_exception();
-        }
+        check_command();
     }
 
-    void authentication(){
-        std::cout << "Please, enter your username: ";
-        std::getline (std::cin,this->username);
-
-        std::cout << "Please, enter your password: ";
-        std::getline (std::cin,this->password);
-
+    void connection(){
+        authentication();
         start_communication();
-    }
-
-    std::string get_username(){
-        return this->username;
-    }
-
-    std::string get_password(){
-        return this->password;
-    }
-
-    std::string get_directory(){
-        return this->directory;
-    }
-
-    std::string get_command(){
-        return this->command;
     }
 
 private:
@@ -50,11 +28,35 @@ private:
     std::string command;
     std::string directory;
 
-    bool check_command(){
-        if(command=="default" || command=="check_validity" || command=="restore"){
-            return true;
-        } return false;
+    void authentication(){
+        std::cout << "Please, enter your username: ";
+        std::getline (std::cin,this->username);
+
+        std::cout << "Please, enter your password: ";
+        std::getline (std::cin,this->password);
     }
+
+    void check_command(){
+        if(command=="restore"){
+            return;
+        } else if(command=="check_validity" || command == "default"){
+            check_directory();
+            return;
+        }
+        std::cout<<"Comando errato."<<std::endl;
+        throw parameters_exception();
+    }
+
+    void check_directory(){
+        boost::filesystem::path path(directory);
+        if(exists(path)){
+            if(is_directory(path)){
+                return;
+            }
+        }
+        throw directory_exception();
+    }
+
 
     void start_communication(){
         boost::asio::io_context io_context;

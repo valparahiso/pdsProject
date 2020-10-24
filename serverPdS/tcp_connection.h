@@ -101,6 +101,7 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
 
                         if(command_ == "check_validity"){
 
+
                         } else if(command_ == "default"){
 
                         } else if(command_ == "restore"){

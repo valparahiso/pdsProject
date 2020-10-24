@@ -143,6 +143,33 @@ clientPdS/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/clientPdS.dir/build.make CMakeFiles/clientPdS.dir/build
 .PHONY : clientPdS/fast
 
+directory_exception.o: directory_exception.cpp.o
+
+.PHONY : directory_exception.o
+
+# target to build an object file
+directory_exception.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/clientPdS.dir/build.make CMakeFiles/clientPdS.dir/directory_exception.cpp.o
+.PHONY : directory_exception.cpp.o
+
+directory_exception.i: directory_exception.cpp.i
+
+.PHONY : directory_exception.i
+
+# target to preprocess a source file
+directory_exception.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/clientPdS.dir/build.make CMakeFiles/clientPdS.dir/directory_exception.cpp.i
+.PHONY : directory_exception.cpp.i
+
+directory_exception.s: directory_exception.cpp.s
+
+.PHONY : directory_exception.s
+
+# target to generate assembly for a file
+directory_exception.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/clientPdS.dir/build.make CMakeFiles/clientPdS.dir/directory_exception.cpp.s
+.PHONY : directory_exception.cpp.s
+
 main.o: main.cpp.o
 
 .PHONY : main.o
@@ -260,6 +287,9 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... clientPdS"
+	@echo "... directory_exception.o"
+	@echo "... directory_exception.i"
+	@echo "... directory_exception.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

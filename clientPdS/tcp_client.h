@@ -205,6 +205,7 @@ private:
                 heartbeat_timer_.async_wait(boost::bind(&tcp_client::read_data, this));
             } else if(operation_ == "logged")
             {
+
                 //heartbeat_timer_.async_wait(boost::bind(&tcp_client::read_data, this));
             }
 
