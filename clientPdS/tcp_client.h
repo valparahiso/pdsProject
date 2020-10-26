@@ -11,6 +11,9 @@
 #include <string>
 #include <boost/array.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/property_tree/json_parser.hpp>
 
 using boost::asio::steady_timer;
 using boost::asio::ip::tcp;
@@ -26,7 +29,7 @@ public:
               heartbeat_timer_(io_context),
               username_(username),
               password_(password),
-              directory_(directory),
+              path_(boost::filesystem::absolute(boost::filesystem::canonical(directory))),
               command_(command)
     {
     }
@@ -116,7 +119,9 @@ private:
             std::cout << "Connected to " << endpoint_iter->endpoint() << "\n";
 
             this->operation_ = "login";
-            write_data(this->username_ + "-" + this->password_ + "\n");
+
+            create_json();
+            //write_data(this->username_ + "-" + this->password_ + "\n");
         }
     }
 
@@ -160,7 +165,7 @@ private:
                     if (line=="user_accepted") {
                         std::cout << "User Accepted! " << std::endl;
                         operation_ = "logged";
-                        write_data(directory_ + "-" + command_ + "\n");
+                        write_data(path_.filename().string() + "-" + command_ + "\n");
 
                     } else {
                         std::cout << "Credenziali errate! Chiusura socket . . .  " << std::endl;
@@ -252,6 +257,47 @@ private:
     std::string username_;
     std::string password_;
     std::string operation_;
-    std::string directory_;
+    boost::filesystem::path path_;
     std::string command_;
+
+    boost::property_tree::ptree create_json(){
+
+        boost::property_tree::ptree JSON;
+        boost::property_tree::ptree login;
+        boost::property_tree::ptree dir_and_command;
+
+        login.put("username", username_);
+        login.put("password", password_);
+
+        dir_and_command.put("directory", path_.filename().string());
+        dir_and_command.put("command", command_);
+
+        JSON.add_child("login", login);
+        JSON.add_child("dir_and_command", dir_and_command);
+
+        JSON.add_child("data", create_data_json(path_));
+
+        boost::property_tree::write_json(std::cout, JSON);
+        return JSON;
+
+    }
+
+
+    boost::property_tree::ptree create_data_json(boost::filesystem::path path){
+
+        std::cout<<"PERCORSO:   "<<path.string()<<std::endl;
+        boost::property_tree::ptree directory;
+        for (auto& entry : boost::filesystem::directory_iterator(path)){
+            if(is_regular_file(entry.path())){
+                boost::property_tree::ptree directory;
+                std::cout<<"FILE:   "<<entry.path().filename().string()<<std::endl;
+                directory.put(entry.path().filename().string(),"CALCOLARE L'HASH");
+            } else {
+                std::cout<<"DIRECTORY:   "<<entry.path().filename().string()<<std::endl;
+                directory.add_child(entry.path().filename().string(), create_data_json(entry.path()));
+            }
+        }
+        return directory;
+
+    }
 };
