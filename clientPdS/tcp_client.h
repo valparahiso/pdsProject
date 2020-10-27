@@ -121,10 +121,9 @@ private:
         {
             std::cout << "Connected to " << endpoint_iter->endpoint() << "\n";
 
-            this->operation_ = "login";
-
-            create_json();
-            //write_data(this->username_ + "-" + this->password_ + "\n");
+            std::ostringstream JSON_string;
+            write_json(JSON_string, create_json());
+            write_data(JSON_string.str() + "/");
         }
     }
 
@@ -138,7 +137,7 @@ private:
 
         // Start an asynchronous operation to read a newline-delimited message.
         boost::asio::async_read_until(socket_,
-                                      boost::asio::dynamic_buffer(input_buffer_), '\n',
+                                      boost::asio::dynamic_buffer(input_buffer_), '/',
                                       boost::bind(&tcp_client::handle_read_data, this, _1, _2));
 
 
@@ -162,21 +161,16 @@ private:
             // Empty messages are heartbeats and so ignored.
             if (!line.empty())
             {
+                std::istringstream ss(line);
+                boost::property_tree::ptree JSON;
+                read_json(ss, JSON);
+
                 std::cout << "Received: " << line << "\n";
-                if(operation_ == "login") {
-
-                    if (line=="user_accepted") {
-                        std::cout << "User Accepted! " << std::endl;
-                        operation_ = "logged";
-                        write_data(path_.filename().string() + "-" + command_ + "\n");
-
-                    } else {
-                        std::cout << "Credenziali errate! Chiusura socket . . .  " << std::endl;
-                        stop();
-                    }
+                if(JSON.get("connection", "connection_error") == "login_error"){
+                    std::cout << "Autenticazione Fallita. Chiusura socket . . .  " << std::endl;
+                    stop();
                 }
             }
-
         }
         else
         {
@@ -208,6 +202,7 @@ private:
         {
             // Wait 10 seconds before sending the next heartbeat.
             heartbeat_timer_.expires_after(boost::asio::chrono::seconds(1));
+            heartbeat_timer_.async_wait(boost::bind(&tcp_client::read_data, this));
             if(operation_ == "login")
             {
                 heartbeat_timer_.async_wait(boost::bind(&tcp_client::read_data, this));
@@ -268,6 +263,7 @@ private:
         boost::property_tree::ptree JSON;
         boost::property_tree::ptree login;
         boost::property_tree::ptree dir_and_command;
+        JSON.put("connection", "login");
 
         login.put("username", username_);
         login.put("password", password_);
@@ -300,18 +296,10 @@ private:
 
     }
 
-    // Print the MD5 sum as hex-digits.
-    void print_md5_sum(unsigned char* md) {
-        int i;
-        for(i=0; i <MD5_DIGEST_LENGTH; i++) {
-            printf("%02x",md[i]);
-        }
-    }
-
     // Get the size of the file by its file descriptor
     static unsigned long get_size_by_fd(int fd) {
         struct stat statbuf;
-        if(fstat(fd, &statbuf) < 0) exit(-1); //uscita controllata
+        if(fstat(fd, &statbuf) < 0) exit(-1); //uscita controllata TODO
         return statbuf.st_size;
     }
 
@@ -323,7 +311,7 @@ private:
         std::ostringstream out;
 
         file_descriptor = open(file_path.c_str(), O_RDONLY);
-        if(file_descriptor < 0) exit(-1); //uscita controllata
+        if(file_descriptor < 0) exit(-1); //uscita controllata TODO
 
         file_size = get_size_by_fd(file_descriptor);
 

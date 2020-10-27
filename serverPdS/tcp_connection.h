@@ -14,7 +14,7 @@
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/asio.hpp>
 #include <sqlite3.h>
-using boost::asio::ip::tcp;
+#include <boost/property_tree/json_parser.hpp>
 
 class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
     public:
@@ -23,17 +23,14 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
             return pointer(new tcp_connection(io_context));
         }
 
-        tcp::socket& socket(){
+        boost::asio::ip::tcp::socket& socket(){
             return socket_;
         }
 
         void start(){
             std::cout<<"- Starting server . . ."<<std::endl;
-            operation_ = "login";
             read_data();
         }
-
-
 
     private:
         tcp_connection(boost::asio::io_context& io_context): socket_(io_context){}
@@ -41,6 +38,7 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
 
         void write_data(std::string data)
         {
+            std::cout<<"MESSAGGIO : "<<data<<std::endl;
             // Start an asynchronous operation to send a heartbeat message.
             boost::asio::async_write(socket_, boost::asio::buffer(data),
                                      boost::bind(&tcp_connection::handle_write_data,
@@ -53,7 +51,7 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
         {
             // Start an asynchronous operation to read a newline-delimited message.
             boost::asio::async_read_until(socket_,
-                                          boost::asio::dynamic_buffer(input_buffer_), '\n',
+                                          boost::asio::dynamic_buffer(input_buffer_), '/',
                                           boost::bind(&tcp_connection::handle_read_data, shared_from_this(), boost::asio::placeholders::error,
                                                       boost::asio::placeholders::bytes_transferred));
 
@@ -61,11 +59,7 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
         }
 
         void handle_write_data(const boost::system::error_code& /*error*/, size_t /*bytes_transferred*/){
-            if(operation_ == "logged"){
-                read_data();
-            } else {
-                socket_.release(); // Non so se è corretto dobbiamo trovare il modo di rilasciare le risorse del socket da parte del server SENZA CHIUDERLO!
-            }
+
         }
 
         void handle_read_data(const boost::system::error_code& ec, std::size_t n)
@@ -79,37 +73,25 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
                 // Empty messages are heartbeats and so ignored.
                 if (!line.empty())
                 {
-                    std::stringstream ss(line);
+                    std::istringstream ss(line);
+                    boost::property_tree::ptree JSON;
+                    read_json(ss, JSON);
 
-                    if(operation_=="login") {
-                        std::cout<<"- Reading Username and Password . . . .     ";
+                    if(JSON.get("connection", "connection_error") == "login"){
+                        username_ = JSON.get("login.username", "NO_USERNAME");
+                        password_ = JSON.get("login.password", "NO_PASSWORD");
 
-                        std::getline(ss, username_, '-');
-                        std::getline(ss, password_, '-');
                         std::cout << "USERNAME: "<<username_<<"     PASSWORD: " << password_ <<" . . . ."<<std::endl;
-
-                        std::string message = this->login_db(username_, password_) ? "user_accepted\n" : "user_refused\n";
-
-                        write_data(message);
-
-                    } else if(operation_ == "logged"){
-
-                        std::cout<<"- Reading Directory and Command . . . .     ";
-                        std::getline(ss, directory_, '-');
-                        std::getline(ss, command_, '-');
-                        std::cout << "DIRECTORY: "<<directory_<<"     COMMAND: " <<command_ <<" . . . ."<<std::endl;
-
-                        if(command_ == "check_validity"){
-
-
-                        } else if(command_ == "default"){
-
-                        } else if(command_ == "restore"){
-
+                        if(login_db(username_, password_)){
+                            JSON.put("connection", "logged");
+                            command_ = JSON.get("dir_and_command.command", "NO_COMMAND");
                         } else {
-                            //COMANDO ERRATO.
+                            JSON.put("connection", "login_error");
+                            std::ostringstream JSON_string;
+                            write_json(JSON_string, JSON);
+                            write_data(JSON_string.str() + "/");
+                            //RILASCIARE RISORSE SOCKET.
                         }
-
                     }
 
                 }
@@ -167,7 +149,7 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
             }
         }
 
-        tcp::socket socket_;
+        boost::asio::ip::tcp::socket socket_;
         std::string input_buffer_;
         std::string operation_;
         std::string directory_;
