@@ -14,6 +14,9 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/property_tree/json_parser.hpp>
+#include <openssl/md5.h>
+#include <sys/mman.h>
+
 
 using boost::asio::steady_timer;
 using boost::asio::ip::tcp;
@@ -285,19 +288,54 @@ private:
 
     boost::property_tree::ptree create_data_json(boost::filesystem::path path){
 
-        std::cout<<"PERCORSO:   "<<path.string()<<std::endl;
         boost::property_tree::ptree directory;
         for (auto& entry : boost::filesystem::directory_iterator(path)){
             if(is_regular_file(entry.path())){
-                boost::property_tree::ptree directory;
-                std::cout<<"FILE:   "<<entry.path().filename().string()<<std::endl;
-                directory.put(entry.path().filename().string(),"CALCOLARE L'HASH");
+                directory.put(boost::property_tree::ptree::path_type(entry.path().filename().string(), '/'), calculate_hash(entry.path().string()));
             } else {
-                std::cout<<"DIRECTORY:   "<<entry.path().filename().string()<<std::endl;
-                directory.add_child(entry.path().filename().string(), create_data_json(entry.path()));
+                directory.add_child(boost::property_tree::ptree::path_type(entry.path().filename().string(), '/'), create_data_json(entry.path()));
             }
         }
         return directory;
+
+    }
+
+    // Print the MD5 sum as hex-digits.
+    void print_md5_sum(unsigned char* md) {
+        int i;
+        for(i=0; i <MD5_DIGEST_LENGTH; i++) {
+            printf("%02x",md[i]);
+        }
+    }
+
+    // Get the size of the file by its file descriptor
+    static unsigned long get_size_by_fd(int fd) {
+        struct stat statbuf;
+        if(fstat(fd, &statbuf) < 0) exit(-1); //uscita controllata
+        return statbuf.st_size;
+    }
+
+    static std::string calculate_hash(std::string file_path){
+        unsigned char result[MD5_DIGEST_LENGTH];
+        int file_descriptor;
+        unsigned long file_size;
+        char* file_buffer;
+        std::ostringstream out;
+
+        file_descriptor = open(file_path.c_str(), O_RDONLY);
+        if(file_descriptor < 0) exit(-1); //uscita controllata
+
+        file_size = get_size_by_fd(file_descriptor);
+
+        file_buffer = static_cast<char *>(mmap(0, file_size, PROT_READ, MAP_SHARED, file_descriptor, 0));
+        MD5((unsigned char*) file_buffer, file_size, result);
+        munmap(file_buffer, file_size);
+            for(int i=0; i <MD5_DIGEST_LENGTH; i++) {
+               out << std::uppercase << std::hex << std::setw(2) << std::setfill('0') << +result[i]; //The unary "+" performs an integral promotion to int.
+                //https://stackoverflow.com/questions/42902594/stdhex-does-not-work-as-i-expect
+            }
+
+       return out.str();
 
     }
 };
