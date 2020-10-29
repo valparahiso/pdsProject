@@ -51,6 +51,7 @@ private:
         boost::filesystem::path path(directory);
         if(exists(path)){
             if(is_directory(path)){
+                directory = boost::filesystem::absolute(boost::filesystem::canonical(path)).string();
                 return;
             }
         }

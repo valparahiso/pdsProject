@@ -15,6 +15,9 @@
 #include <boost/asio.hpp>
 #include <sqlite3.h>
 #include <boost/property_tree/json_parser.hpp>
+#include <boost/filesystem.hpp>
+#include <openssl/md5.h>
+#include <sys/mman.h>
 
 class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
     public:
@@ -36,8 +39,11 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
         tcp_connection(boost::asio::io_context& io_context): socket_(io_context){}
 
 
-        void write_data(std::string data)
+        void write_data(boost::property_tree::ptree JSON)
         {
+            std::ostringstream JSON_string;
+            write_json(JSON_string, JSON);
+            std::string data = JSON_string.str() + "/";
             std::cout<<"MESSAGGIO : "<<data<<std::endl;
             // Start an asynchronous operation to send a heartbeat message.
             boost::asio::async_write(socket_, boost::asio::buffer(data),
@@ -59,6 +65,7 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
         }
 
         void handle_write_data(const boost::system::error_code& /*error*/, size_t /*bytes_transferred*/){
+            //read_data();
 
         }
 
@@ -85,13 +92,41 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
                         if(login_db(username_, password_)){
                             JSON.put("connection", "logged");
                             command_ = JSON.get("dir_and_command.command", "NO_COMMAND");
+                            path_ = boost::filesystem::path(username_ + "/" + JSON.get("dir_and_command.directory", "NO_DIRECTORY"));
+                            std::cout << "PATH: "<<path_.string()<<"     COMMAND: " << command_ <<" . . . ."<<std::endl;
+                            if(command_ == "restore" || command_ == "check_validity"){
+                                if(check_directory(path_)){
+                                    //boost::property_tree::write_json(std::cout, JSON.get_child("data"));
+                                    if(!JSON.get_child("data").empty() && check_validity(JSON.get_child("data"))){
+                                        JSON.put("connection", "directory_valid");
+                                        write_data(JSON);
+                                    } else if(command_ == "check_validity"){
+                                        JSON.put("connection", "directory_invalid");
+                                        write_data(JSON);
+                                    } else {
+                                        //RESTORE
+                                        if(JSON.get_child("data").empty()){
+                                            std::cout<<"CARTELLA NON PRESENTE SUL CLIENT"<<std::endl;
+                                            JSON.put("connection", "empty_data");
+                                            write_data(JSON);
+                                        }
+                                    }
+                                } else {
+                                    JSON.put("connection", "directory_error");
+                                    write_data(JSON);
+                                    //RILASCIARE RISORSE SOCKET
+                                }
+                            } else if(command_ == "default"){
+                                //IMPLEMENTARE DEFAULT
+                                std::cout<<"DEFAULT !!! "<<std::endl;
+                            }
                         } else {
                             JSON.put("connection", "login_error");
-                            std::ostringstream JSON_string;
-                            write_json(JSON_string, JSON);
-                            write_data(JSON_string.str() + "/");
+                            write_data(JSON);
                             //RILASCIARE RISORSE SOCKET.
                         }
+                    } else if(JSON.get("connection", "connection_error") == "empty_data"){
+
                     }
 
                 }
@@ -134,7 +169,6 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
             }
 
             sqlite3_close(db);
-            operation_ = "logged";
             return true;
         }
 
@@ -149,10 +183,69 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
             }
         }
 
+        bool check_directory(boost::filesystem::path path){
+            if(exists(path)){
+                if(is_directory(path)){
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        bool check_validity(boost::property_tree::ptree JSON_client){
+            JSON_client.sort();
+            return (create_data_json(path_) == JSON_client);
+        }
+
+        boost::property_tree::ptree create_data_json(boost::filesystem::path path){
+
+            boost::property_tree::ptree directory;
+
+            for (auto& entry : boost::filesystem::directory_iterator(path)){
+                if(is_regular_file(entry.path())){
+                    directory.put(boost::property_tree::ptree::path_type(entry.path().filename().string(), '/'), calculate_hash(entry.path().string()));
+                } else {
+                    directory.add_child(boost::property_tree::ptree::path_type(entry.path().filename().string(), '/'), create_data_json(entry.path()));
+                }
+            }
+            directory.sort();
+            return directory;
+
+        }
+
+        static unsigned long get_size_by_fd(int fd) {
+            struct stat statbuf;
+            if(fstat(fd, &statbuf) < 0) exit(-1); //uscita controllata TODO
+            return statbuf.st_size;
+        }
+
+        static std::string calculate_hash(std::string file_path){
+            unsigned char result[MD5_DIGEST_LENGTH];
+            int file_descriptor;
+            unsigned long file_size;
+            char* file_buffer;
+            std::ostringstream out;
+
+            file_descriptor = open(file_path.c_str(), O_RDONLY);
+            if(file_descriptor < 0) exit(-1); //uscita controllata TODO
+
+            file_size = get_size_by_fd(file_descriptor);
+
+            file_buffer = static_cast<char *>(mmap(0, file_size, PROT_READ, MAP_SHARED, file_descriptor, 0));
+            MD5((unsigned char*) file_buffer, file_size, result);
+            munmap(file_buffer, file_size);
+            for(int i=0; i <MD5_DIGEST_LENGTH; i++) {
+                out << std::uppercase << std::hex << std::setw(2) << std::setfill('0') << +result[i]; //The unary "+" performs an integral promotion to int.
+                //https://stackoverflow.com/questions/42902594/stdhex-does-not-work-as-i-expect
+            }
+
+            return out.str();
+
+        }
+
         boost::asio::ip::tcp::socket socket_;
         std::string input_buffer_;
-        std::string operation_;
-        std::string directory_;
+        boost::filesystem::path path_;
         std::string command_;
         std::string username_;
         std::string password_;

@@ -16,6 +16,7 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <openssl/md5.h>
 #include <sys/mman.h>
+#include <boost/thread.hpp>
 
 
 using boost::asio::steady_timer;
@@ -32,7 +33,7 @@ public:
               heartbeat_timer_(io_context),
               username_(username),
               password_(password),
-              path_(boost::filesystem::absolute(boost::filesystem::canonical(directory))),
+              path_(boost::filesystem::path(directory)),
               command_(command)
     {
     }
@@ -121,9 +122,7 @@ private:
         {
             std::cout << "Connected to " << endpoint_iter->endpoint() << "\n";
 
-            std::ostringstream JSON_string;
-            write_json(JSON_string, create_json());
-            write_data(JSON_string.str() + "/");
+            write_data(create_json());
         }
     }
 
@@ -169,6 +168,32 @@ private:
                 if(JSON.get("connection", "connection_error") == "login_error"){
                     std::cout << "Autenticazione Fallita. Chiusura socket . . .  " << std::endl;
                     stop();
+                } else if(command_ == "check_validity"){
+                    if(JSON.get("connection", "connection_error") == "directory_error"){
+                        std::cout << "Directory invalida. Directory NON presente sul server. Chiusura socket . . .  " << std::endl;
+                        stop();
+                    } else if(JSON.get("connection", "connection_error") == "directory_valid"){
+                        std::cout << "Directory VALIDA. Client e server aggiornati. . . . Chiusura socket . . .  " << std::endl;
+                        stop();
+                    } else if(JSON.get("connection", "connection_error") == "directory_invalid"){
+                        std::cout << "Directory INVALIDA. Client e server NON aggiornati. . . . Chiusura socket . . .  " << std::endl;
+                        stop();
+                    }
+
+                } else if(command_ == "restore"){
+                    if(JSON.get("connection", "connection_error") == "directory_error"){
+                        std::cout << "Impossibile esguire il restore della directory. Directory NON presente sul server. Chiusura socket . . .  " << std::endl;
+                        stop();
+                    }
+                    else if(JSON.get("connection", "connection_error") == "directory_valid"){
+                        std::cout << "Directory di client e server sono già aggiornate . . . . Chiusura socket . . .  " << std::endl;
+                        stop();
+                    } else if(JSON.get("connection", "connection_error") == "empty_data"){
+                        //INVIARE FILES + CARTELLE.
+                    }
+
+                } else if(command_ == "default"){
+
                 }
             }
         }
@@ -180,8 +205,11 @@ private:
         }
     }
 
-    void write_data(std::string data)
+    void write_data(boost::property_tree::ptree JSON)
     {
+        std::ostringstream JSON_string;
+        write_json(JSON_string, JSON);
+        std::string data = JSON_string.str() + "/";
         std::cout<<"SENDING DATA TO SERVER "<<std::endl;
         if (stopped_)
             return;
@@ -266,7 +294,8 @@ private:
         JSON.put("connection", "login");
 
         login.put("username", username_);
-        login.put("password", password_);
+        login.put("password", calculate_password_hash());
+        std::cout<<"PASSWORD HASH :      "<<calculate_password_hash()<<std::endl;
 
         dir_and_command.put("directory", path_.filename().string());
         dir_and_command.put("command", command_);
@@ -274,11 +303,28 @@ private:
         JSON.add_child("login", login);
         JSON.add_child("dir_and_command", dir_and_command);
 
-        JSON.add_child("data", create_data_json(path_));
+        if(exists(path_) && is_directory(path_)){
+            JSON.add_child("data", create_data_json(path_));
+        } else JSON.put("data", "");
 
         boost::property_tree::write_json(std::cout, JSON);
         return JSON;
 
+    }
+
+    std::string calculate_password_hash(){
+        std::ostringstream out;
+        const char* password = password_.c_str();
+        MD5_CTX md5;
+        MD5_Init (&md5);
+        MD5_Update (&md5, (const unsigned char *) password, password_.length());
+        unsigned char buffer_md5[MD5_DIGEST_LENGTH];
+        MD5_Final ( buffer_md5, &md5);
+        for(int i=0; i <MD5_DIGEST_LENGTH; i++) {
+            out << std::uppercase << std::hex << std::setw(2) << std::setfill('0') << +buffer_md5[i]; //The unary "+" performs an integral promotion to int.
+            //https://stackoverflow.com/questions/42902594/stdhex-does-not-work-as-i-expect
+        }
+        return out.str();
     }
 
 
