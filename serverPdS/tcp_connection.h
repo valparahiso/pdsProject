@@ -44,7 +44,7 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
             std::ostringstream JSON_string;
             write_json(JSON_string, JSON);
             std::string data = JSON_string.str() + "/";
-            std::cout<<"MESSAGGIO : "<<data<<std::endl;
+            std::cout<<"MESSAGGIO CHE STO PER INVIARE: "<<data<<std::endl;
             // Start an asynchronous operation to send a heartbeat message.
             boost::asio::async_write(socket_, boost::asio::buffer(data),
                                      boost::bind(&tcp_connection::handle_write_data,
@@ -52,6 +52,7 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
                                                  boost::asio::placeholders::error,
                                                  boost::asio::placeholders::bytes_transferred));
         }
+
 
         void read_data()
         {
@@ -65,7 +66,7 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
         }
 
         void handle_write_data(const boost::system::error_code& /*error*/, size_t /*bytes_transferred*/){
-            //read_data();
+            read_data();
 
         }
 
@@ -80,40 +81,42 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
                 // Empty messages are heartbeats and so ignored.
                 if (!line.empty())
                 {
+                    std::cout<<"MESSAGGIO RICEVUTO : "<<line<<std::endl;
                     std::istringstream ss(line);
-                    boost::property_tree::ptree JSON;
-                    read_json(ss, JSON);
+                    read_json(ss, JSON_client);
 
-                    if(JSON.get("connection", "connection_error") == "login"){
-                        username_ = JSON.get("login.username", "NO_USERNAME");
-                        password_ = JSON.get("login.password", "NO_PASSWORD");
+                    if(JSON_client.get("connection", "connection_error") == "login"){
+                        username_ = JSON_client.get("login.username", "NO_USERNAME");
+                        password_ = JSON_client.get("login.password", "NO_PASSWORD");
 
                         std::cout << "USERNAME: "<<username_<<"     PASSWORD: " << password_ <<" . . . ."<<std::endl;
                         if(login_db(username_, password_)){
-                            JSON.put("connection", "logged");
-                            command_ = JSON.get("dir_and_command.command", "NO_COMMAND");
-                            path_ = boost::filesystem::path(username_ + "/" + JSON.get("dir_and_command.directory", "NO_DIRECTORY"));
+                            JSON_client.put("connection", "logged");
+                            command_ = JSON_client.get("dir_and_command.command", "NO_COMMAND");
+                            path_ = boost::filesystem::path(username_ + "/" + JSON_client.get("dir_and_command.directory", "NO_DIRECTORY"));
                             std::cout << "PATH: "<<path_.string()<<"     COMMAND: " << command_ <<" . . . ."<<std::endl;
                             if(command_ == "restore" || command_ == "check_validity"){
                                 if(check_directory(path_)){
                                     //boost::property_tree::write_json(std::cout, JSON.get_child("data"));
-                                    if(!JSON.get_child("data").empty() && check_validity(JSON.get_child("data"))){
-                                        JSON.put("connection", "directory_valid");
-                                        write_data(JSON);
+                                    if(!JSON_client.get_child("data").empty() && check_validity(JSON_client.get_child("data"))){
+                                        JSON_client.put("connection", "directory_valid");
+                                        write_data(JSON_client);
                                     } else if(command_ == "check_validity"){
-                                        JSON.put("connection", "directory_invalid");
-                                        write_data(JSON);
+                                        JSON_client.put("connection", "directory_invalid");
+                                        write_data(JSON_client);
                                     } else {
                                         //RESTORE
-                                        if(JSON.get_child("data").empty()){
+                                        if(JSON_client.get_child("data").empty()){
                                             std::cout<<"CARTELLA NON PRESENTE SUL CLIENT"<<std::endl;
-                                            JSON.put("connection", "empty_data");
-                                            write_data(JSON);
+                                            JSON_server = JSON_client;
+                                            JSON_server.put_child("data",create_data_json(path_, 1));
+                                            JSON_server.put("connection", "empty_data");
+                                            write_data(JSON_server);
                                         }
                                     }
                                 } else {
-                                    JSON.put("connection", "directory_error");
-                                    write_data(JSON);
+                                    JSON_client.put("connection", "directory_error");
+                                    write_data(JSON_client);
                                     //RILASCIARE RISORSE SOCKET
                                 }
                             } else if(command_ == "default"){
@@ -121,12 +124,19 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
                                 std::cout<<"DEFAULT !!! "<<std::endl;
                             }
                         } else {
-                            JSON.put("connection", "login_error");
-                            write_data(JSON);
+                            JSON_client.put("connection", "login_error");
+                            write_data(JSON_client);
                             //RILASCIARE RISORSE SOCKET.
                         }
-                    } else if(JSON.get("connection", "connection_error") == "empty_data"){
-
+                    } else if(JSON_client.get("connection", "connection_error") == "ask_file"){
+                        std::cout<<"CLIENT CHIEDE UN FILE"<<std::endl;
+                        std::string path = "";
+                        for(int i=0; i<JSON_client.get<int>("size"); i++){
+                            path += JSON_client.get<std::string>(std::to_string(i)) + "/";
+                        }
+                        path += JSON_client.get<std::string>("file_name");
+                        std::cout<<"PERCORSO FILE : " << path<<std::endl;
+                        to_file_from_bytes(path);
                     }
 
                 }
@@ -194,18 +204,23 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
 
         bool check_validity(boost::property_tree::ptree JSON_client){
             JSON_client.sort();
-            return (create_data_json(path_) == JSON_client);
+            JSON_server = create_data_json(path_, 0);
+            JSON_server.sort();
+            return (JSON_server == JSON_client);
         }
 
-        boost::property_tree::ptree create_data_json(boost::filesystem::path path){
+        boost::property_tree::ptree create_data_json(boost::filesystem::path path, int option){
 
             boost::property_tree::ptree directory;
 
             for (auto& entry : boost::filesystem::directory_iterator(path)){
                 if(is_regular_file(entry.path())){
-                    directory.put(boost::property_tree::ptree::path_type(entry.path().filename().string(), '/'), calculate_hash(entry.path().string()));
+                    if(option==0)
+                        directory.put(boost::property_tree::ptree::path_type(entry.path().filename().string(), '/'), calculate_hash(entry.path().string()));
+                    else
+                        directory.put(boost::property_tree::ptree::path_type(entry.path().filename().string(), '/'), "X");
                 } else {
-                    directory.add_child(boost::property_tree::ptree::path_type(entry.path().filename().string(), '/'), create_data_json(entry.path()));
+                    directory.add_child(boost::property_tree::ptree::path_type(entry.path().filename().string(), '/'), create_data_json(entry.path(), option));
                 }
             }
             directory.sort();
@@ -243,12 +258,73 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
 
         }
 
+        void to_file_from_bytes(std::string path_file){
+            std::ifstream size(path_file, std::ios::ate | std::ios::binary);
+            int file_size = size.tellg();
+            size.close();
+            if(file_size == -1){
+                std::cout<<"FILE INESITENTE "<<std::endl;
+                return;
+            }
+
+            send_file(path_file, file_size);
+        }
+
+        void send_file(std::string path_file, int bytes_to_transfer){
+
+            std::cout<<"LEGGO DAL FILE PARTENDO DALL'INDICE "<<0<<" MANCANO DA LEGGERE " << bytes_to_transfer << " bytes" <<std::endl;
+            std::ifstream input(path_file, std::ios::in | std::ios::binary);
+
+            boost::property_tree::ptree file_asked;
+            file_asked.put("connection", "sending_file");
+            file_asked.put("status", "sending");
+            int size = 1024;
+            if(bytes_to_transfer >= 1024){
+                bytes_to_transfer -= 1024;
+            } else {
+                if(bytes_to_transfer != 0) {
+                    size = bytes_to_transfer;
+                    bytes_to_transfer = 0;
+                    file_asked.put("status", "last");
+                } else {
+                    input.close();
+                    return;
+                }
+            }
+
+
+            std::vector<unsigned char> buffer(size);
+            //std::cout<<"LEGGO DAL FILE PARTENDO DALL'INDICE "<<index<<" UNA SIZE DI " << buffer.size() << " bytes" <<std::endl;
+            input.read((char*)&buffer[0], buffer.size());
+
+            file_asked.put("data", std::string(buffer.begin(), buffer.end()));
+            std::ostringstream JSON_string;
+            write_json(JSON_string, file_asked);
+            std::string data = JSON_string.str() + "/";
+            std::cout<<"MESSAGGIO : "<<data<<std::endl;
+
+            boost::asio::async_write(socket_, boost::asio::buffer(data),
+                                     boost::bind(&tcp_connection::send_file,
+                                                 shared_from_this(),
+                                                 path_file,
+                                                 bytes_to_transfer));
+        }
+
+
+        void create_file(std::string path, std::string name_file, std::vector<unsigned char> buffer){
+            std::ofstream output(path + "/" + name_file, std::ios::binary);
+            output.write((char*) &buffer[0], buffer.size());
+            output.close();
+        }
+
         boost::asio::ip::tcp::socket socket_;
         std::string input_buffer_;
         boost::filesystem::path path_;
         std::string command_;
         std::string username_;
         std::string password_;
+        boost::property_tree::ptree JSON_server; //nostro file system
+        boost::property_tree::ptree JSON_client; //filesystem del client
 
 
 };

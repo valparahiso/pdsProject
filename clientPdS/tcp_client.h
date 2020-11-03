@@ -17,6 +17,7 @@
 #include <openssl/md5.h>
 #include <sys/mman.h>
 #include <boost/thread.hpp>
+#include <boost/algorithm/string.hpp>
 
 
 using boost::asio::steady_timer;
@@ -36,6 +37,8 @@ public:
               path_(boost::filesystem::path(directory)),
               command_(command)
     {
+
+
     }
 
     // Called by the user of the user class to initiate the connection process.
@@ -71,7 +74,7 @@ private:
         {
             std::cout << "Trying " << endpoint_iter->endpoint() << "...\n";
 
-            // Set a deadline for the connect operation.
+            // Set a deadline for the connect operatiod\nn.
             deadline_.expires_after(boost::asio::chrono::seconds(60));
 
             // Start the asynchronous connect operation.
@@ -144,7 +147,6 @@ private:
 
     void handle_read_data(const boost::system::error_code& ec, std::size_t n)
     {
-        std::cout<<"HANDLE READ WITH OPERATION: "<<operation_<<std::endl;
         if (stopped_)
             return;
 
@@ -189,7 +191,18 @@ private:
                         std::cout << "Directory di client e server sono già aggiornate . . . . Chiusura socket . . .  " << std::endl;
                         stop();
                     } else if(JSON.get("connection", "connection_error") == "empty_data"){
-                        //INVIARE FILES + CARTELLE.
+                        //create file system.
+                        //1. Creaiamo la struttura (cartelle)
+                        //2. Iteriamo sul json ricevuto e non appena abbiamo un file lo chiediamo al server.
+                        std::cout<<"SONO DENTRO "<<std::endl;
+                        create_file_system(JSON.get_child("data"), path_.string(), username_ + "/" + path_.filename().string());
+                    } else if(JSON.get("connection", "connection_error") == "sending_file"){
+                        if(JSON.get("status", "status_error") == "last"){
+                            std::cout<<"FILE RICEVUTO "<<std::endl;
+                        } else {
+                            read_data();
+                        }
+
                     }
 
                 } else if(command_ == "default"){
@@ -222,23 +235,15 @@ private:
 
     void handle_write_data(const boost::system::error_code& ec)
     {
-        std::cout<<"HANDLE WRITE WITH OPERATION: "<<operation_<<std::endl;
         if (stopped_)
             return;
 
         if (!ec)
         {
+            std::cout<<"ARRIVO CORRETTAMENTE"<<std::endl;
             // Wait 10 seconds before sending the next heartbeat.
-            heartbeat_timer_.expires_after(boost::asio::chrono::seconds(1));
+            //heartbeat_timer_.expires_after(boost::asio::chrono::seconds(1));
             heartbeat_timer_.async_wait(boost::bind(&tcp_client::read_data, this));
-            if(operation_ == "login")
-            {
-                heartbeat_timer_.async_wait(boost::bind(&tcp_client::read_data, this));
-            } else if(operation_ == "logged")
-            {
-
-                //heartbeat_timer_.async_wait(boost::bind(&tcp_client::read_data, this));
-            }
 
         }
         else
@@ -371,5 +376,32 @@ private:
 
        return out.str();
 
+    }
+
+    void create_file_system(boost::property_tree::ptree JSON, std::string path_client, std::string path_server){
+        boost::filesystem::create_directory(path_client);
+        std::cout<<"PERCORSO CLIENT: "<<path_client<<std::endl;
+        std::cout<<"PERCORSO SERVER: "<<path_server<<std::endl;
+        for(auto tree : JSON){
+            if(tree.second.data() == "X"){
+                //FILE
+                std::cout<<"SONO NEL FILE"<<std::endl;
+                boost::property_tree::ptree ask_file;
+                ask_file.put("connection", "ask_file");
+                std::vector<std::string> string_split;
+                boost::algorithm::split(string_split, path_server, boost::is_any_of("/"));
+                ask_file.put("size", std::to_string(string_split.size()));
+                for(int i=0; i<string_split.size(); i++){
+                    ask_file.put(std::to_string(i), string_split[i]);
+                }
+                ask_file.put("file_name", tree.first);
+                write_data(ask_file);
+
+                return;
+            } else {
+                //CARTELLA
+                create_file_system(JSON.get_child(boost::property_tree::ptree::path_type(tree.first, '/')), path_client + "/" + tree.first, path_server + "/" + tree.first);
+            }
+        }
     }
 };
