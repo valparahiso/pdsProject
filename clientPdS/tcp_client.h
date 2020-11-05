@@ -136,6 +136,7 @@ private:
         // Set a deadline for the read operation.
         deadline_.expires_after(boost::asio::chrono::seconds(30));
 
+        std::cout<<"******************** In read DATA"<<std::endl;
 
         // Start an asynchronous operation to read a newline-delimited message.
         boost::asio::async_read_until(socket_,
@@ -155,6 +156,8 @@ private:
 
         if (!ec)
         {
+            std::cout<<"******************** In handle read DATA"<<std::endl;
+
             // Extract the newline-delimited message from the buffer.
             std::string line(input_buffer_.substr(0, n - 1));
             input_buffer_.erase(0, n);
@@ -191,16 +194,36 @@ private:
                         std::cout << "Directory di client e server sono già aggiornate . . . . Chiusura socket . . .  " << std::endl;
                         stop();
                     } else if(JSON.get("connection", "connection_error") == "empty_data"){
-                        //create file system.
-                        //1. Creaiamo la struttura (cartelle)
-                        //2. Iteriamo sul json ricevuto e non appena abbiamo un file lo chiediamo al server.
                         std::cout<<"SONO DENTRO "<<std::endl;
-                        create_file_system(JSON.get_child("data"), path_.string(), username_ + "/" + path_.filename().string());
+                        files = create_file_system(JSON.get_child("data"), path_.string(), username_ + "/" + path_.filename().string(), files);
+                        if(!files.empty()){
+                            files[0].put("num_files", std::to_string(files.size()));
+                            files[0].put("index_file", "0");
+                            write_data(files[0]);
+                        }
                     } else if(JSON.get("connection", "connection_error") == "sending_file"){
-                        if(JSON.get("status", "status_error") == "last"){
+                        std::string path_file = path_.string() + "/";
+                        for(int i=2; i<JSON.get<int>("size"); i++){
+                            path_file += JSON.get<std::string>(std::to_string(i)) + "/";
+                        }
+                        std::string data = JSON.get<std::string>("block_info.data");
+                        write_file(path_file + JSON.get<std::string>("file_name"), std::vector<unsigned char>(data.begin(), data.end()));
+                        if(JSON.get("block_info.status", "status_error") == "last"){
                             std::cout<<"FILE RICEVUTO "<<std::endl;
+                            int index_file = JSON.get<int>("index_file") +1;
+                            int num_files = JSON.get<int>("num_files");
+                            if(index_file == num_files){
+                                //ABBIAMO INVIATO TUTTI I FILE.
+                            } else{
+                                files[index_file].put("index_file", std::to_string(index_file));
+                                files[index_file].put("num_files", std::to_string(num_files));
+                                write_data(files[index_file]);
+                            }
+
                         } else {
-                            read_data();
+                            //Scriviamo che abbiamo ricevuto l'ultimo.
+                            JSON.put("connection", "file_received");
+                            write_data(JSON);
                         }
 
                     }
@@ -220,6 +243,8 @@ private:
 
     void write_data(boost::property_tree::ptree JSON)
     {
+        std::cout<<"******************** In WRITE DATA"<<std::endl;
+
         std::ostringstream JSON_string;
         write_json(JSON_string, JSON);
         std::string data = JSON_string.str() + "/";
@@ -235,6 +260,8 @@ private:
 
     void handle_write_data(const boost::system::error_code& ec)
     {
+        std::cout<<"******************** In handle WRITE DATA"<<std::endl;
+
         if (stopped_)
             return;
 
@@ -243,6 +270,7 @@ private:
             std::cout<<"ARRIVO CORRETTAMENTE"<<std::endl;
             // Wait 10 seconds before sending the next heartbeat.
             //heartbeat_timer_.expires_after(boost::asio::chrono::seconds(1));
+
             heartbeat_timer_.async_wait(boost::bind(&tcp_client::read_data, this));
 
         }
@@ -287,7 +315,7 @@ private:
     steady_timer heartbeat_timer_;
     std::string username_;
     std::string password_;
-    std::string operation_;
+    std::vector<boost::property_tree::ptree> files;
     boost::filesystem::path path_;
     std::string command_;
 
@@ -378,7 +406,7 @@ private:
 
     }
 
-    void create_file_system(boost::property_tree::ptree JSON, std::string path_client, std::string path_server){
+    std::vector<boost::property_tree::ptree> create_file_system(boost::property_tree::ptree JSON, std::string path_client, std::string path_server, std::vector<boost::property_tree::ptree> files){
         boost::filesystem::create_directory(path_client);
         std::cout<<"PERCORSO CLIENT: "<<path_client<<std::endl;
         std::cout<<"PERCORSO SERVER: "<<path_server<<std::endl;
@@ -395,13 +423,38 @@ private:
                     ask_file.put(std::to_string(i), string_split[i]);
                 }
                 ask_file.put("file_name", tree.first);
-                write_data(ask_file);
 
-                return;
+                files.push_back(ask_file);
             } else {
                 //CARTELLA
-                create_file_system(JSON.get_child(boost::property_tree::ptree::path_type(tree.first, '/')), path_client + "/" + tree.first, path_server + "/" + tree.first);
+                files = create_file_system(JSON.get_child(boost::property_tree::ptree::path_type(tree.first, '/')), path_client + "/" + tree.first, path_server + "/" + tree.first, files);
             }
         }
+        return files;
+
+    }
+
+
+    void write_file(std::string path, std::vector<unsigned char> buffer){
+
+
+        std::basic_string<uint8_t> bytes;
+        std::string hex = std::string(buffer.begin(), buffer.end());
+
+        for (size_t i = 0; i < hex.length(); i += 2) {
+            uint16_t byte;
+            std::string nextbyte = hex.substr(i, 2);
+            std::istringstream(nextbyte) >> std::hex >> byte;
+            bytes.push_back(static_cast<uint8_t>(byte));
+        }
+
+        std::string result(begin(bytes), end(bytes));
+
+        std::vector<unsigned char> my_buff = std::vector<unsigned char>( result.begin(), result.end());
+        std::ofstream output_file(path, std::ios::binary | std::ios::out | std::fstream::app);
+
+        output_file.write((char*) &my_buff[0], my_buff.size());
+        output_file.close();
+
     }
 };

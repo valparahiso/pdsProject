@@ -136,7 +136,34 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
                         }
                         path += JSON_client.get<std::string>("file_name");
                         std::cout<<"PERCORSO FILE : " << path<<std::endl;
-                        to_file_from_bytes(path);
+                        file_blocks = to_file_from_bytes(path);
+
+                        if(file_blocks.size() > 0){
+
+                            if(file_blocks.size() == 1) file_blocks[0].put("status", "last");
+                            JSON_client.put("connection","sending_file");
+                            file_blocks[0].put("num_blocks", std::to_string(file_blocks.size()));
+                            file_blocks[0].put("index_block", "0");
+                            JSON_client.add_child("block_info", file_blocks[0]);
+                            write_data(JSON_client);
+                        }
+                    } else if(JSON_client.get("connection", "connection_error") == "file_received"){
+                        std::cout<<"CLIENT CHIEDE UN ALTRO PEZZO DEL FILE"<<std::endl;
+                        int index_block = JSON_client.get<int>("block_info.index_block") + 1;
+                        int num_blocks = JSON_client.get<int>("block_info.num_blocks");
+
+                        if(index_block + 1 == num_blocks){
+                            //E' l'ultimo
+                            file_blocks[index_block].put("status", "last");
+                        }
+                        file_blocks[index_block].put("index_block", std::to_string(index_block));
+                        file_blocks[index_block].put("num_blocks", std::to_string(num_blocks));
+                        JSON_client.erase("block_info");
+                        JSON_client.add_child("block_info", file_blocks[index_block]);
+                        JSON_client.put("connection", "sending_file");
+
+                        write_data(JSON_client);
+
                     }
 
                 }
@@ -258,26 +285,29 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
 
         }
 
-        void to_file_from_bytes(std::string path_file){
+        std::vector<boost::property_tree::ptree> to_file_from_bytes(std::string path_file){
+
+            std::vector<boost::property_tree::ptree> file_blocks;
             std::ifstream size(path_file, std::ios::ate | std::ios::binary);
             int file_size = size.tellg();
             size.close();
             if(file_size == -1){
                 std::cout<<"FILE INESITENTE "<<std::endl;
-                return;
+                return file_blocks;
             }
 
-            send_file(path_file, file_size);
+            file_blocks = send_file(path_file, file_size, file_blocks, 0);
+            return file_blocks;
         }
 
-        void send_file(std::string path_file, int bytes_to_transfer){
+    std::vector<boost::property_tree::ptree> send_file(std::string path_file, int bytes_to_transfer, std::vector<boost::property_tree::ptree> file_blocks, int offset){
 
             std::cout<<"LEGGO DAL FILE PARTENDO DALL'INDICE "<<0<<" MANCANO DA LEGGERE " << bytes_to_transfer << " bytes" <<std::endl;
             std::ifstream input(path_file, std::ios::in | std::ios::binary);
+            input.seekg (offset);
+
 
             boost::property_tree::ptree file_asked;
-            file_asked.put("connection", "sending_file");
-            file_asked.put("status", "sending");
             int size = 1024;
             if(bytes_to_transfer >= 1024){
                 bytes_to_transfer -= 1024;
@@ -288,7 +318,7 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
                     file_asked.put("status", "last");
                 } else {
                     input.close();
-                    return;
+                    return file_blocks;
                 }
             }
 
@@ -297,22 +327,23 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
             //std::cout<<"LEGGO DAL FILE PARTENDO DALL'INDICE "<<index<<" UNA SIZE DI " << buffer.size() << " bytes" <<std::endl;
             input.read((char*)&buffer[0], buffer.size());
 
-            file_asked.put("data", std::string(buffer.begin(), buffer.end()));
-            std::ostringstream JSON_string;
-            write_json(JSON_string, file_asked);
-            std::string data = JSON_string.str() + "/";
-            std::cout<<"MESSAGGIO : "<<data<<std::endl;
+            std::stringstream buffer_hex;
+            file_asked.put("status", "");
+            for(int i=0; i<buffer.size(); i++){
+                buffer_hex << std::hex << std::setw(2) << std::setfill('0') << +buffer[i];
+            }
 
-            boost::asio::async_write(socket_, boost::asio::buffer(data),
-                                     boost::bind(&tcp_connection::send_file,
-                                                 shared_from_this(),
-                                                 path_file,
-                                                 bytes_to_transfer));
+            file_asked.put("data", std::string(buffer_hex.str()));
+
+            file_blocks.push_back(file_asked);
+            file_blocks = send_file(path_file, bytes_to_transfer, file_blocks, offset + 1024);
+            return file_blocks;
         }
 
 
         void create_file(std::string path, std::string name_file, std::vector<unsigned char> buffer){
-            std::ofstream output(path + "/" + name_file, std::ios::binary);
+            std::ofstream output(path + "/" + name_file, std::ios::binary | std::fstream::app);
+
             output.write((char*) &buffer[0], buffer.size());
             output.close();
         }
@@ -325,6 +356,7 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
         std::string password_;
         boost::property_tree::ptree JSON_server; //nostro file system
         boost::property_tree::ptree JSON_client; //filesystem del client
+        std::vector<boost::property_tree::ptree> file_blocks;
 
 
 };
