@@ -88,6 +88,12 @@
 		<Unit filename="/home/simo/pdsProject/clientPdS/directory_exception.h">
 			<Option target="clientPdS"/>
 		</Unit>
+		<Unit filename="/home/simo/pdsProject/clientPdS/file_watcher.cpp">
+			<Option target="clientPdS"/>
+		</Unit>
+		<Unit filename="/home/simo/pdsProject/clientPdS/file_watcher.h">
+			<Option target="clientPdS"/>
+		</Unit>
 		<Unit filename="/home/simo/pdsProject/clientPdS/main.cpp">
 			<Option target="clientPdS"/>
 		</Unit>

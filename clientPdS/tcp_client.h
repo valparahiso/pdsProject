@@ -124,8 +124,8 @@ private:
         else
         {
             std::cout << "Connected to " << endpoint_iter->endpoint() << "\n";
-
-            write_data(create_json());
+            JSON_client = create_json();
+            write_data(JSON_client);
         }
     }
 
@@ -194,7 +194,6 @@ private:
                         std::cout << "Directory di client e server sono già aggiornate . . . . Chiusura socket . . .  " << std::endl;
                         stop();
                     } else if(JSON.get("connection", "connection_error") == "empty_data"){
-                        std::cout<<"SONO DENTRO "<<std::endl;
                         files = create_file_system(JSON.get_child("data"), path_.string(), username_ + "/" + path_.filename().string(), files);
                         if(!files.empty()){
                             files[0].put("num_files", std::to_string(files.size()));
@@ -209,11 +208,11 @@ private:
                         std::string data = JSON.get<std::string>("block_info.data");
                         write_file(path_file + JSON.get<std::string>("file_name"), std::vector<unsigned char>(data.begin(), data.end()));
                         if(JSON.get("block_info.status", "status_error") == "last"){
-                            std::cout<<"FILE RICEVUTO "<<std::endl;
                             int index_file = JSON.get<int>("index_file") +1;
                             int num_files = JSON.get<int>("num_files");
                             if(index_file == num_files){
-                                //ABBIAMO INVIATO TUTTI I FILE.
+                                std::cout<<"CARTELLA AGGIORNATA CON SUCCESSO. . . . Chiusura socket. . . ."<<std::endl;
+                                stop();
                             } else{
                                 files[index_file].put("index_file", std::to_string(index_file));
                                 files[index_file].put("num_files", std::to_string(num_files));
@@ -226,9 +225,18 @@ private:
                             write_data(JSON);
                         }
 
+                    } else if(JSON.get("connection", "connection_error") == "differences"){
+                        JSON_differences(JSON.get_child("data"), JSON_client.get_child("data"));
+                        if(!files.empty()){
+                            files[0].put("num_files", std::to_string(files.size()));
+                            files[0].put("index_file", "0");
+                            write_data(files[0]);
+                        }
+
                     }
 
                 } else if(command_ == "default"){
+
 
                 }
             }
@@ -267,7 +275,6 @@ private:
 
         if (!ec)
         {
-            std::cout<<"ARRIVO CORRETTAMENTE"<<std::endl;
             // Wait 10 seconds before sending the next heartbeat.
             //heartbeat_timer_.expires_after(boost::asio::chrono::seconds(1));
 
@@ -318,6 +325,7 @@ private:
     std::vector<boost::property_tree::ptree> files;
     boost::filesystem::path path_;
     std::string command_;
+    boost::property_tree::ptree JSON_client;
 
     boost::property_tree::ptree create_json(){
 
@@ -371,6 +379,7 @@ private:
                 directory.add_child(boost::property_tree::ptree::path_type(entry.path().filename().string(), '/'), create_data_json(entry.path()));
             }
         }
+        directory.sort();
         return directory;
 
     }
@@ -397,21 +406,23 @@ private:
         file_buffer = static_cast<char *>(mmap(0, file_size, PROT_READ, MAP_SHARED, file_descriptor, 0));
         MD5((unsigned char*) file_buffer, file_size, result);
         munmap(file_buffer, file_size);
-            for(int i=0; i <MD5_DIGEST_LENGTH; i++) {
-               out << std::uppercase << std::hex << std::setw(2) << std::setfill('0') << +result[i]; //The unary "+" performs an integral promotion to int.
-                //https://stackoverflow.com/questions/42902594/stdhex-does-not-work-as-i-expect
-            }
+        for(int i=0; i <MD5_DIGEST_LENGTH; i++) {
+           out << std::uppercase << std::hex << std::setw(2) << std::setfill('0') << +result[i]; //The unary "+" performs an integral promotion to int.
+            //https://stackoverflow.com/questions/42902594/stdhex-does-not-work-as-i-expect
+        }
+
+        close(file_descriptor);
 
        return out.str();
 
     }
 
     std::vector<boost::property_tree::ptree> create_file_system(boost::property_tree::ptree JSON, std::string path_client, std::string path_server, std::vector<boost::property_tree::ptree> files){
+
         boost::filesystem::create_directory(path_client);
-        std::cout<<"PERCORSO CLIENT: "<<path_client<<std::endl;
-        std::cout<<"PERCORSO SERVER: "<<path_server<<std::endl;
+
         for(auto tree : JSON){
-            if(tree.second.data() == "X"){
+            if(tree.second.data() != ""){
                 //FILE
                 std::cout<<"SONO NEL FILE"<<std::endl;
                 boost::property_tree::ptree ask_file;
@@ -456,5 +467,70 @@ private:
         output_file.write((char*) &my_buff[0], my_buff.size());
         output_file.close();
 
+    }
+
+    void JSON_differences(boost::property_tree::ptree JSON_server, boost::property_tree::ptree& JSON_client){
+
+        delete_from_client(JSON_server, JSON_client, path_.string());
+
+        add_to_client(JSON_server, JSON_client, path_.string(), username_ + "/" + path_.filename().string());
+    }
+
+    void add_to_client(boost::property_tree::ptree JSON_server, boost::property_tree::ptree& JSON_client, std::string path_client, std::string path_server) {
+        for (auto tree : JSON_server) {
+            if (tree.second.data() == "") {   //DIRECTORY
+
+                if (JSON_client.count(tree.first) == 0) {
+                    files = create_file_system(
+                            JSON_server.get_child(boost::property_tree::ptree::path_type(tree.first, '/')), path_client + "/" + tree.first,
+                            path_server + "/" + tree.first, files);
+                    JSON_client.add_child(tree.first, JSON_server.get_child(
+                            boost::property_tree::ptree::path_type(tree.first, '/')));
+                } else {
+                    add_to_client(JSON_server.get_child(boost::property_tree::ptree::path_type(tree.first, '/')), JSON_client.get_child(boost::property_tree::ptree::path_type(tree.first, '/')), path_client + "/" + tree.first, path_server + "/" + tree.first);
+                }
+            } else {
+                if(JSON_client.count(tree.first) == 0) {
+                    boost::property_tree::ptree file_JSON;
+                    file_JSON.put(boost::property_tree::ptree::path_type(tree.first, '/'), "X");
+                    files = create_file_system(file_JSON, path_client, path_server, files);
+                    JSON_client.put(boost::property_tree::ptree::path_type(tree.first, '/'), tree.second.data());
+                }
+                else if (JSON_client.get<std::string>(boost::property_tree::ptree::path_type(tree.first, '/')) != tree.second.data()){
+                    //DELETE DEL FILE
+
+                    boost::filesystem::remove(boost::filesystem::path(path_client + "/" + tree.first));
+                    boost::property_tree::ptree file_JSON;
+                    file_JSON.put(boost::property_tree::ptree::path_type(tree.first, '/'), "X");
+                    files = create_file_system(file_JSON, path_client, path_server, files);
+                    JSON_client.add(tree.first, tree.second.data());
+
+                }
+            }
+        }
+    }
+
+
+    void delete_from_client(boost::property_tree::ptree JSON_server, boost::property_tree::ptree& JSON_client, std::string path){
+
+        for(auto tree : JSON_client){
+
+            if(tree.second.data() == ""){   //DIRECTORY
+                if(JSON_server.count(tree.first) == 0){
+                    boost::filesystem::remove_all(boost::filesystem::path(path + "/" + tree.first));
+
+
+                    JSON_client.erase(tree.first);
+
+                } else {
+                    //CARTELLA ESISTE SUL CLIENT
+                    delete_from_client(JSON_server.get_child(boost::property_tree::ptree::path_type(tree.first, '/')), JSON_client.get_child(boost::property_tree::ptree::path_type(tree.first, '/')), path + "/" + tree.first);
+                }
+            } else {
+                if(JSON_server.count(tree.first) == 0){
+                    boost::filesystem::remove(boost::filesystem::path(path + "/" + tree.first));
+                }
+            }
+        }
     }
 };

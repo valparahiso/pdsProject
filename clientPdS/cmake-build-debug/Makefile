@@ -170,6 +170,33 @@ directory_exception.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/clientPdS.dir/build.make CMakeFiles/clientPdS.dir/directory_exception.cpp.s
 .PHONY : directory_exception.cpp.s
 
+file_watcher.o: file_watcher.cpp.o
+
+.PHONY : file_watcher.o
+
+# target to build an object file
+file_watcher.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/clientPdS.dir/build.make CMakeFiles/clientPdS.dir/file_watcher.cpp.o
+.PHONY : file_watcher.cpp.o
+
+file_watcher.i: file_watcher.cpp.i
+
+.PHONY : file_watcher.i
+
+# target to preprocess a source file
+file_watcher.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/clientPdS.dir/build.make CMakeFiles/clientPdS.dir/file_watcher.cpp.i
+.PHONY : file_watcher.cpp.i
+
+file_watcher.s: file_watcher.cpp.s
+
+.PHONY : file_watcher.s
+
+# target to generate assembly for a file
+file_watcher.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/clientPdS.dir/build.make CMakeFiles/clientPdS.dir/file_watcher.cpp.s
+.PHONY : file_watcher.cpp.s
+
 main.o: main.cpp.o
 
 .PHONY : main.o
@@ -290,6 +317,9 @@ help:
 	@echo "... directory_exception.o"
 	@echo "... directory_exception.i"
 	@echo "... directory_exception.s"
+	@echo "... file_watcher.o"
+	@echo "... file_watcher.i"
+	@echo "... file_watcher.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

@@ -95,24 +95,39 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
                             command_ = JSON_client.get("dir_and_command.command", "NO_COMMAND");
                             path_ = boost::filesystem::path(username_ + "/" + JSON_client.get("dir_and_command.directory", "NO_DIRECTORY"));
                             std::cout << "PATH: "<<path_.string()<<"     COMMAND: " << command_ <<" . . . ."<<std::endl;
-                            if(command_ == "restore" || command_ == "check_validity"){
+
+                            if(command_ == "restore"){
                                 if(check_directory(path_)){
-                                    //boost::property_tree::write_json(std::cout, JSON.get_child("data"));
                                     if(!JSON_client.get_child("data").empty() && check_validity(JSON_client.get_child("data"))){
                                         JSON_client.put("connection", "directory_valid");
                                         write_data(JSON_client);
-                                    } else if(command_ == "check_validity"){
-                                        JSON_client.put("connection", "directory_invalid");
-                                        write_data(JSON_client);
-                                    } else {
-                                        //RESTORE
-                                        if(JSON_client.get_child("data").empty()){
+                                    } else if(JSON_client.get_child("data").empty()){
                                             std::cout<<"CARTELLA NON PRESENTE SUL CLIENT"<<std::endl;
                                             JSON_server = JSON_client;
                                             JSON_server.put_child("data",create_data_json(path_, 1));
                                             JSON_server.put("connection", "empty_data");
                                             write_data(JSON_server);
-                                        }
+                                    } else {
+                                        //DIFFERENZE
+                                        std::cout<<"CARTELLA PRESENTE SUL CLIENT"<<std::endl;
+                                        JSON_server.put("connection", "differences");
+                                        boost::property_tree::write_json(std::cout, JSON_server);
+
+                                        write_data(JSON_server);
+                                    }
+                                } else {
+                                    JSON_client.put("connection", "directory_error");
+                                    write_data(JSON_client);
+                                    //RILASCIARE RISORSE SOCKET
+                                }
+                            } else if(command_ == "check_validity"){
+                                if(check_directory(path_)){
+                                    if(!JSON_client.get_child("data").empty() && check_validity(JSON_client.get_child("data"))){
+                                        JSON_client.put("connection", "directory_valid");
+                                        write_data(JSON_client);
+                                    } else {
+                                        JSON_client.put("connection", "directory_invalid");
+                                        write_data(JSON_client);
                                     }
                                 } else {
                                     JSON_client.put("connection", "directory_error");
@@ -120,6 +135,32 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
                                     //RILASCIARE RISORSE SOCKET
                                 }
                             } else if(command_ == "default"){
+                                if(check_directory(path_)){
+
+                                    //DIRECTORY ESISTE SUL SERVER
+                                    /*if(!JSON_client.get_child("data").empty() && check_validity(JSON_client.get_child("data"))){
+                                        JSON_client.put("connection", "directory_valid");
+                                        write_data(JSON_client);
+                                    } else if(JSON_client.get_child("data").empty()){
+                                        std::cout<<"CARTELLA NON PRESENTE SUL CLIENT"<<std::endl;
+                                        JSON_server = JSON_client;
+                                        JSON_server.put_child("data",create_data_json(path_, 1));
+                                        JSON_server.put("connection", "empty_data");
+                                        write_data(JSON_server);
+                                    } else {
+                                        //DIFFERENZE
+                                        std::cout<<"CARTELLA PRESENTE SUL CLIENT"<<std::endl;
+                                        JSON_server.put("connection", "differences");
+                                        boost::property_tree::write_json(std::cout, JSON_server);
+
+                                        write_data(JSON_server);
+                                    }*/
+                                } else {
+                                    //DIRECTORY NON ESISTENTE SUL SERVER CHIEDIAMO TUTTO.
+                                    JSON_client.put("connection", "directory_error");
+                                    write_data(JSON_client);
+                                    //RILASCIARE RISORSE SOCKET
+                                }
                                 //IMPLEMENTARE DEFAULT
                                 std::cout<<"DEFAULT !!! "<<std::endl;
                             }
@@ -231,9 +272,13 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
 
         bool check_validity(boost::property_tree::ptree JSON_client){
             JSON_client.sort();
-            JSON_server = create_data_json(path_, 0);
-            JSON_server.sort();
-            return (JSON_server == JSON_client);
+            JSON_server.add_child("data", create_data_json(path_, 0));
+            boost::property_tree::ptree JSON_server_sorted = JSON_server.get_child("data");
+            JSON_server_sorted.sort();
+            std::cout<<"****************************************************************************"<<std::endl;
+            boost::property_tree::write_json(std::cout, JSON_server_sorted);
+            boost::property_tree::write_json(std::cout, JSON_client);
+            return (JSON_server_sorted == JSON_client);
         }
 
         boost::property_tree::ptree create_data_json(boost::filesystem::path path, int option){
@@ -312,9 +357,9 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
             if(bytes_to_transfer >= 1024){
                 bytes_to_transfer -= 1024;
             } else {
-                if(bytes_to_transfer != 0) {
+                if(bytes_to_transfer >= 0) {
                     size = bytes_to_transfer;
-                    bytes_to_transfer = 0;
+                    bytes_to_transfer = -1;
                     file_asked.put("status", "last");
                 } else {
                     input.close();
@@ -347,6 +392,7 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
             output.write((char*) &buffer[0], buffer.size());
             output.close();
         }
+
 
         boost::asio::ip::tcp::socket socket_;
         std::string input_buffer_;
