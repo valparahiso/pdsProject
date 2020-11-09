@@ -1,7 +1,4 @@
-#include <boost/asio/buffer.hpp>
-#include <boost/asio/io_context.hpp>
-#include <boost/asio/ip/tcp.hpp>
-#include <boost/asio/read_until.hpp>
+#include <boost/asio.hpp>
 #include <boost/asio/steady_timer.hpp>
 #include <boost/asio/write.hpp>
 #include <boost/bind.hpp>
@@ -18,7 +15,9 @@
 #include <sys/mman.h>
 #include <boost/thread.hpp>
 #include <boost/algorithm/string.hpp>
-
+#include "utilities/JSON_utility.h"
+#include "utilities/hash_utility.h"
+#include "utilities/filesystem_utility.h"
 
 using boost::asio::steady_timer;
 using boost::asio::ip::tcp;
@@ -124,7 +123,7 @@ private:
         else
         {
             std::cout << "Connected to " << endpoint_iter->endpoint() << "\n";
-            JSON_client = create_json();
+            JSON_client = JSON_utility::create_json(username_, password_, command_, path_);
             write_data(JSON_client);
         }
     }
@@ -194,7 +193,7 @@ private:
                         std::cout << "Directory di client e server sono già aggiornate . . . . Chiusura socket . . .  " << std::endl;
                         stop();
                     } else if(JSON.get("connection", "connection_error") == "empty_data"){
-                        files = create_file_system(JSON.get_child("data"), path_.string(), username_ + "/" + path_.filename().string(), files);
+                        files = filesystem_utility::create_file_system(JSON.get_child("data"), path_.string(), username_ + "/" + path_.filename().string(), files);
                         if(!files.empty()){
                             files[0].put("num_files", std::to_string(files.size()));
                             files[0].put("index_file", "0");
@@ -206,7 +205,7 @@ private:
                             path_file += JSON.get<std::string>(std::to_string(i)) + "/";
                         }
                         std::string data = JSON.get<std::string>("block_info.data");
-                        write_file(path_file + JSON.get<std::string>("file_name"), std::vector<unsigned char>(data.begin(), data.end()));
+                        filesystem_utility::write_file(path_file + JSON.get<std::string>("file_name"), std::vector<unsigned char>(data.begin(), data.end()));
                         if(JSON.get("block_info.status", "status_error") == "last"){
                             int index_file = JSON.get<int>("index_file") +1;
                             int num_files = JSON.get<int>("num_files");
@@ -226,7 +225,7 @@ private:
                         }
 
                     } else if(JSON.get("connection", "connection_error") == "differences"){
-                        JSON_differences(JSON.get_child("data"), JSON_client.get_child("data"));
+                        JSON_utility::JSON_differences(JSON.get_child("data"), JSON_client.get_child("data"), username_, path_, files);
                         if(!files.empty()){
                             files[0].put("num_files", std::to_string(files.size()));
                             files[0].put("index_file", "0");
@@ -327,7 +326,7 @@ private:
     std::string command_;
     boost::property_tree::ptree JSON_client;
 
-    boost::property_tree::ptree create_json(){
+    /*boost::property_tree::ptree create_json(){
 
         boost::property_tree::ptree JSON;
         boost::property_tree::ptree login;
@@ -532,5 +531,5 @@ private:
                 }
             }
         }
-    }
+    }*/
 };

@@ -155,6 +155,45 @@ CMakeFiles/clientPdS.dir/file_watcher.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/clientPdS.dir/file_watcher.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/simo/pdsProject/clientPdS/file_watcher.cpp -o CMakeFiles/clientPdS.dir/file_watcher.cpp.s
 
+CMakeFiles/clientPdS.dir/utilities/JSON_utility.cpp.o: CMakeFiles/clientPdS.dir/flags.make
+CMakeFiles/clientPdS.dir/utilities/JSON_utility.cpp.o: ../utilities/JSON_utility.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/simo/pdsProject/clientPdS/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/clientPdS.dir/utilities/JSON_utility.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/clientPdS.dir/utilities/JSON_utility.cpp.o -c /home/simo/pdsProject/clientPdS/utilities/JSON_utility.cpp
+
+CMakeFiles/clientPdS.dir/utilities/JSON_utility.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/clientPdS.dir/utilities/JSON_utility.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/simo/pdsProject/clientPdS/utilities/JSON_utility.cpp > CMakeFiles/clientPdS.dir/utilities/JSON_utility.cpp.i
+
+CMakeFiles/clientPdS.dir/utilities/JSON_utility.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/clientPdS.dir/utilities/JSON_utility.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/simo/pdsProject/clientPdS/utilities/JSON_utility.cpp -o CMakeFiles/clientPdS.dir/utilities/JSON_utility.cpp.s
+
+CMakeFiles/clientPdS.dir/utilities/hash_utility.cpp.o: CMakeFiles/clientPdS.dir/flags.make
+CMakeFiles/clientPdS.dir/utilities/hash_utility.cpp.o: ../utilities/hash_utility.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/simo/pdsProject/clientPdS/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/clientPdS.dir/utilities/hash_utility.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/clientPdS.dir/utilities/hash_utility.cpp.o -c /home/simo/pdsProject/clientPdS/utilities/hash_utility.cpp
+
+CMakeFiles/clientPdS.dir/utilities/hash_utility.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/clientPdS.dir/utilities/hash_utility.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/simo/pdsProject/clientPdS/utilities/hash_utility.cpp > CMakeFiles/clientPdS.dir/utilities/hash_utility.cpp.i
+
+CMakeFiles/clientPdS.dir/utilities/hash_utility.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/clientPdS.dir/utilities/hash_utility.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/simo/pdsProject/clientPdS/utilities/hash_utility.cpp -o CMakeFiles/clientPdS.dir/utilities/hash_utility.cpp.s
+
+CMakeFiles/clientPdS.dir/utilities/filesystem_utility.cpp.o: CMakeFiles/clientPdS.dir/flags.make
+CMakeFiles/clientPdS.dir/utilities/filesystem_utility.cpp.o: ../utilities/filesystem_utility.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/simo/pdsProject/clientPdS/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/clientPdS.dir/utilities/filesystem_utility.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/clientPdS.dir/utilities/filesystem_utility.cpp.o -c /home/simo/pdsProject/clientPdS/utilities/filesystem_utility.cpp
+
+CMakeFiles/clientPdS.dir/utilities/filesystem_utility.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/clientPdS.dir/utilities/filesystem_utility.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/simo/pdsProject/clientPdS/utilities/filesystem_utility.cpp > CMakeFiles/clientPdS.dir/utilities/filesystem_utility.cpp.i
+
+CMakeFiles/clientPdS.dir/utilities/filesystem_utility.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/clientPdS.dir/utilities/filesystem_utility.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/simo/pdsProject/clientPdS/utilities/filesystem_utility.cpp -o CMakeFiles/clientPdS.dir/utilities/filesystem_utility.cpp.s
+
 # Object files for target clientPdS
 clientPdS_OBJECTS = \
 "CMakeFiles/clientPdS.dir/main.cpp.o" \
@@ -162,7 +201,10 @@ clientPdS_OBJECTS = \
 "CMakeFiles/clientPdS.dir/user.cpp.o" \
 "CMakeFiles/clientPdS.dir/parameters_exception.cpp.o" \
 "CMakeFiles/clientPdS.dir/directory_exception.cpp.o" \
-"CMakeFiles/clientPdS.dir/file_watcher.cpp.o"
+"CMakeFiles/clientPdS.dir/file_watcher.cpp.o" \
+"CMakeFiles/clientPdS.dir/utilities/JSON_utility.cpp.o" \
+"CMakeFiles/clientPdS.dir/utilities/hash_utility.cpp.o" \
+"CMakeFiles/clientPdS.dir/utilities/filesystem_utility.cpp.o"
 
 # External object files for target clientPdS
 clientPdS_EXTERNAL_OBJECTS =
@@ -173,9 +215,12 @@ clientPdS: CMakeFiles/clientPdS.dir/user.cpp.o
 clientPdS: CMakeFiles/clientPdS.dir/parameters_exception.cpp.o
 clientPdS: CMakeFiles/clientPdS.dir/directory_exception.cpp.o
 clientPdS: CMakeFiles/clientPdS.dir/file_watcher.cpp.o
+clientPdS: CMakeFiles/clientPdS.dir/utilities/JSON_utility.cpp.o
+clientPdS: CMakeFiles/clientPdS.dir/utilities/hash_utility.cpp.o
+clientPdS: CMakeFiles/clientPdS.dir/utilities/filesystem_utility.cpp.o
 clientPdS: CMakeFiles/clientPdS.dir/build.make
 clientPdS: CMakeFiles/clientPdS.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/simo/pdsProject/clientPdS/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Linking CXX executable clientPdS"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/simo/pdsProject/clientPdS/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Linking CXX executable clientPdS"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/clientPdS.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

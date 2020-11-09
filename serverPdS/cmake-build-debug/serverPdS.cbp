@@ -85,9 +85,6 @@
 		<Unit filename="/home/simo/pdsProject/serverPdS/main.cpp">
 			<Option target="serverPdS"/>
 		</Unit>
-		<Unit filename="/home/simo/pdsProject/serverPdS/utility.h">
-			<Option target="serverPdS"/>
-		</Unit>
 		<Unit filename="/home/simo/pdsProject/serverPdS/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
 		</Unit>

@@ -305,6 +305,87 @@ user.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/clientPdS.dir/build.make CMakeFiles/clientPdS.dir/user.cpp.s
 .PHONY : user.cpp.s
 
+utilities/JSON_utility.o: utilities/JSON_utility.cpp.o
+
+.PHONY : utilities/JSON_utility.o
+
+# target to build an object file
+utilities/JSON_utility.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/clientPdS.dir/build.make CMakeFiles/clientPdS.dir/utilities/JSON_utility.cpp.o
+.PHONY : utilities/JSON_utility.cpp.o
+
+utilities/JSON_utility.i: utilities/JSON_utility.cpp.i
+
+.PHONY : utilities/JSON_utility.i
+
+# target to preprocess a source file
+utilities/JSON_utility.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/clientPdS.dir/build.make CMakeFiles/clientPdS.dir/utilities/JSON_utility.cpp.i
+.PHONY : utilities/JSON_utility.cpp.i
+
+utilities/JSON_utility.s: utilities/JSON_utility.cpp.s
+
+.PHONY : utilities/JSON_utility.s
+
+# target to generate assembly for a file
+utilities/JSON_utility.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/clientPdS.dir/build.make CMakeFiles/clientPdS.dir/utilities/JSON_utility.cpp.s
+.PHONY : utilities/JSON_utility.cpp.s
+
+utilities/filesystem_utility.o: utilities/filesystem_utility.cpp.o
+
+.PHONY : utilities/filesystem_utility.o
+
+# target to build an object file
+utilities/filesystem_utility.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/clientPdS.dir/build.make CMakeFiles/clientPdS.dir/utilities/filesystem_utility.cpp.o
+.PHONY : utilities/filesystem_utility.cpp.o
+
+utilities/filesystem_utility.i: utilities/filesystem_utility.cpp.i
+
+.PHONY : utilities/filesystem_utility.i
+
+# target to preprocess a source file
+utilities/filesystem_utility.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/clientPdS.dir/build.make CMakeFiles/clientPdS.dir/utilities/filesystem_utility.cpp.i
+.PHONY : utilities/filesystem_utility.cpp.i
+
+utilities/filesystem_utility.s: utilities/filesystem_utility.cpp.s
+
+.PHONY : utilities/filesystem_utility.s
+
+# target to generate assembly for a file
+utilities/filesystem_utility.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/clientPdS.dir/build.make CMakeFiles/clientPdS.dir/utilities/filesystem_utility.cpp.s
+.PHONY : utilities/filesystem_utility.cpp.s
+
+utilities/hash_utility.o: utilities/hash_utility.cpp.o
+
+.PHONY : utilities/hash_utility.o
+
+# target to build an object file
+utilities/hash_utility.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/clientPdS.dir/build.make CMakeFiles/clientPdS.dir/utilities/hash_utility.cpp.o
+.PHONY : utilities/hash_utility.cpp.o
+
+utilities/hash_utility.i: utilities/hash_utility.cpp.i
+
+.PHONY : utilities/hash_utility.i
+
+# target to preprocess a source file
+utilities/hash_utility.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/clientPdS.dir/build.make CMakeFiles/clientPdS.dir/utilities/hash_utility.cpp.i
+.PHONY : utilities/hash_utility.cpp.i
+
+utilities/hash_utility.s: utilities/hash_utility.cpp.s
+
+.PHONY : utilities/hash_utility.s
+
+# target to generate assembly for a file
+utilities/hash_utility.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/clientPdS.dir/build.make CMakeFiles/clientPdS.dir/utilities/hash_utility.cpp.s
+.PHONY : utilities/hash_utility.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -332,6 +413,15 @@ help:
 	@echo "... user.o"
 	@echo "... user.i"
 	@echo "... user.s"
+	@echo "... utilities/JSON_utility.o"
+	@echo "... utilities/JSON_utility.i"
+	@echo "... utilities/JSON_utility.s"
+	@echo "... utilities/filesystem_utility.o"
+	@echo "... utilities/filesystem_utility.i"
+	@echo "... utilities/filesystem_utility.s"
+	@echo "... utilities/hash_utility.o"
+	@echo "... utilities/hash_utility.i"
+	@echo "... utilities/hash_utility.s"
 .PHONY : help
 
 

@@ -115,6 +115,24 @@
 		<Unit filename="/home/simo/pdsProject/clientPdS/user.h">
 			<Option target="clientPdS"/>
 		</Unit>
+		<Unit filename="/home/simo/pdsProject/clientPdS/utilities/JSON_utility.cpp">
+			<Option target="clientPdS"/>
+		</Unit>
+		<Unit filename="/home/simo/pdsProject/clientPdS/utilities/JSON_utility.h">
+			<Option target="clientPdS"/>
+		</Unit>
+		<Unit filename="/home/simo/pdsProject/clientPdS/utilities/filesystem_utility.cpp">
+			<Option target="clientPdS"/>
+		</Unit>
+		<Unit filename="/home/simo/pdsProject/clientPdS/utilities/filesystem_utility.h">
+			<Option target="clientPdS"/>
+		</Unit>
+		<Unit filename="/home/simo/pdsProject/clientPdS/utilities/hash_utility.cpp">
+			<Option target="clientPdS"/>
+		</Unit>
+		<Unit filename="/home/simo/pdsProject/clientPdS/utilities/hash_utility.h">
+			<Option target="clientPdS"/>
+		</Unit>
 		<Unit filename="/home/simo/pdsProject/clientPdS/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
 		</Unit>
