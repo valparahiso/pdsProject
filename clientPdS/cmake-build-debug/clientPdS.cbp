@@ -82,6 +82,12 @@
 				</MakeCommands>
 			</Target>
 		</Build>
+		<Unit filename="/home/simo/pdsProject/clientPdS/JSON_utility.cpp">
+			<Option target="clientPdS"/>
+		</Unit>
+		<Unit filename="/home/simo/pdsProject/clientPdS/JSON_utility.h">
+			<Option target="clientPdS"/>
+		</Unit>
 		<Unit filename="/home/simo/pdsProject/clientPdS/directory_exception.cpp">
 			<Option target="clientPdS"/>
 		</Unit>
@@ -92,6 +98,18 @@
 			<Option target="clientPdS"/>
 		</Unit>
 		<Unit filename="/home/simo/pdsProject/clientPdS/file_watcher.h">
+			<Option target="clientPdS"/>
+		</Unit>
+		<Unit filename="/home/simo/pdsProject/clientPdS/filesystem_utility.cpp">
+			<Option target="clientPdS"/>
+		</Unit>
+		<Unit filename="/home/simo/pdsProject/clientPdS/filesystem_utility.h">
+			<Option target="clientPdS"/>
+		</Unit>
+		<Unit filename="/home/simo/pdsProject/clientPdS/hash_utility.cpp">
+			<Option target="clientPdS"/>
+		</Unit>
+		<Unit filename="/home/simo/pdsProject/clientPdS/hash_utility.h">
 			<Option target="clientPdS"/>
 		</Unit>
 		<Unit filename="/home/simo/pdsProject/clientPdS/main.cpp">

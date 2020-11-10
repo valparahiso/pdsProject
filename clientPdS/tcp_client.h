@@ -1,23 +1,7 @@
-#include <boost/asio/buffer.hpp>
-#include <boost/asio/io_context.hpp>
-#include <boost/asio/ip/tcp.hpp>
-#include <boost/asio/read_until.hpp>
-#include <boost/asio/steady_timer.hpp>
-#include <boost/asio/write.hpp>
-#include <boost/bind.hpp>
 #include <boost/asio.hpp>
-#include <boost/enable_shared_from_this.hpp>
-#include <iostream>
-#include <string>
-#include <boost/array.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/property_tree/ptree.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/property_tree/json_parser.hpp>
-#include <openssl/md5.h>
-#include <sys/mman.h>
-#include <boost/thread.hpp>
-#include <boost/algorithm/string.hpp>
+#include "filesystem_utility.h"
+#include "hash_utility.h"
+#include "JSON_utility.h"
 
 
 using boost::asio::steady_timer;
@@ -124,7 +108,7 @@ private:
         else
         {
             std::cout << "Connected to " << endpoint_iter->endpoint() << "\n";
-            JSON_client = create_json();
+            JSON_client = JSON_utility::create_json(username_, password_, command_, path_);
             write_data(JSON_client);
         }
     }
@@ -194,7 +178,7 @@ private:
                         std::cout << "Directory di client e server sono già aggiornate . . . . Chiusura socket . . .  " << std::endl;
                         stop();
                     } else if(JSON.get("connection", "connection_error") == "empty_data"){
-                        files = create_file_system(JSON.get_child("data"), path_.string(), username_ + "/" + path_.filename().string(), files);
+                        files = filesystem_utility::create_file_system(JSON.get_child("data"), path_.string(), username_ + "/" + path_.filename().string(), files);
                         if(!files.empty()){
                             files[0].put("num_files", std::to_string(files.size()));
                             files[0].put("index_file", "0");
@@ -206,7 +190,7 @@ private:
                             path_file += JSON.get<std::string>(std::to_string(i)) + "/";
                         }
                         std::string data = JSON.get<std::string>("block_info.data");
-                        write_file(path_file + JSON.get<std::string>("file_name"), std::vector<unsigned char>(data.begin(), data.end()));
+                        filesystem_utility::write_file(path_file + JSON.get<std::string>("file_name"), std::vector<unsigned char>(data.begin(), data.end()));
                         if(JSON.get("block_info.status", "status_error") == "last"){
                             int index_file = JSON.get<int>("index_file") +1;
                             int num_files = JSON.get<int>("num_files");
@@ -226,11 +210,14 @@ private:
                         }
 
                     } else if(JSON.get("connection", "connection_error") == "differences"){
-                        JSON_differences(JSON.get_child("data"), JSON_client.get_child("data"));
+                        files = JSON_utility::JSON_differences(JSON.get_child("data"), JSON_client.get_child("data"), username_, path_, files);
                         if(!files.empty()){
                             files[0].put("num_files", std::to_string(files.size()));
                             files[0].put("index_file", "0");
                             write_data(files[0]);
+                        } else {
+                            std::cout<<"CARTELLA AGGIORNATA CON SUCCESSO. . . . Chiusura socket. . . ."<<std::endl;
+                            stop();
                         }
 
                     }
@@ -326,211 +313,4 @@ private:
     boost::filesystem::path path_;
     std::string command_;
     boost::property_tree::ptree JSON_client;
-
-    boost::property_tree::ptree create_json(){
-
-        boost::property_tree::ptree JSON;
-        boost::property_tree::ptree login;
-        boost::property_tree::ptree dir_and_command;
-        JSON.put("connection", "login");
-
-        login.put("username", username_);
-        login.put("password", calculate_password_hash());
-        std::cout<<"PASSWORD HASH :      "<<calculate_password_hash()<<std::endl;
-
-        dir_and_command.put("directory", path_.filename().string());
-        dir_and_command.put("command", command_);
-
-        JSON.add_child("login", login);
-        JSON.add_child("dir_and_command", dir_and_command);
-
-        if(exists(path_) && is_directory(path_)){
-            JSON.add_child("data", create_data_json(path_));
-        } else JSON.put("data", "");
-
-        boost::property_tree::write_json(std::cout, JSON);
-        return JSON;
-
-    }
-
-    std::string calculate_password_hash(){
-        std::ostringstream out;
-        const char* password = password_.c_str();
-        MD5_CTX md5;
-        MD5_Init (&md5);
-        MD5_Update (&md5, (const unsigned char *) password, password_.length());
-        unsigned char buffer_md5[MD5_DIGEST_LENGTH];
-        MD5_Final ( buffer_md5, &md5);
-        for(int i=0; i <MD5_DIGEST_LENGTH; i++) {
-            out << std::uppercase << std::hex << std::setw(2) << std::setfill('0') << +buffer_md5[i]; //The unary "+" performs an integral promotion to int.
-            //https://stackoverflow.com/questions/42902594/stdhex-does-not-work-as-i-expect
-        }
-        return out.str();
-    }
-
-
-    boost::property_tree::ptree create_data_json(boost::filesystem::path path){
-
-        boost::property_tree::ptree directory;
-        for (auto& entry : boost::filesystem::directory_iterator(path)){
-            if(is_regular_file(entry.path())){
-                directory.put(boost::property_tree::ptree::path_type(entry.path().filename().string(), '/'), calculate_hash(entry.path().string()));
-            } else {
-                directory.add_child(boost::property_tree::ptree::path_type(entry.path().filename().string(), '/'), create_data_json(entry.path()));
-            }
-        }
-        directory.sort();
-        return directory;
-
-    }
-
-    // Get the size of the file by its file descriptor
-    static unsigned long get_size_by_fd(int fd) {
-        struct stat statbuf;
-        if(fstat(fd, &statbuf) < 0) exit(-1); //uscita controllata TODO
-        return statbuf.st_size;
-    }
-
-    static std::string calculate_hash(std::string file_path){
-        unsigned char result[MD5_DIGEST_LENGTH];
-        int file_descriptor;
-        unsigned long file_size;
-        char* file_buffer;
-        std::ostringstream out;
-
-        file_descriptor = open(file_path.c_str(), O_RDONLY);
-        if(file_descriptor < 0) exit(-1); //uscita controllata TODO
-
-        file_size = get_size_by_fd(file_descriptor);
-
-        file_buffer = static_cast<char *>(mmap(0, file_size, PROT_READ, MAP_SHARED, file_descriptor, 0));
-        MD5((unsigned char*) file_buffer, file_size, result);
-        munmap(file_buffer, file_size);
-        for(int i=0; i <MD5_DIGEST_LENGTH; i++) {
-           out << std::uppercase << std::hex << std::setw(2) << std::setfill('0') << +result[i]; //The unary "+" performs an integral promotion to int.
-            //https://stackoverflow.com/questions/42902594/stdhex-does-not-work-as-i-expect
-        }
-
-        close(file_descriptor);
-
-       return out.str();
-
-    }
-
-    std::vector<boost::property_tree::ptree> create_file_system(boost::property_tree::ptree JSON, std::string path_client, std::string path_server, std::vector<boost::property_tree::ptree> files){
-
-        boost::filesystem::create_directory(path_client);
-
-        for(auto tree : JSON){
-            if(tree.second.data() != ""){
-                //FILE
-                std::cout<<"SONO NEL FILE"<<std::endl;
-                boost::property_tree::ptree ask_file;
-                ask_file.put("connection", "ask_file");
-                std::vector<std::string> string_split;
-                boost::algorithm::split(string_split, path_server, boost::is_any_of("/"));
-                ask_file.put("size", std::to_string(string_split.size()));
-                for(int i=0; i<string_split.size(); i++){
-                    ask_file.put(std::to_string(i), string_split[i]);
-                }
-                ask_file.put("file_name", tree.first);
-
-                files.push_back(ask_file);
-            } else {
-                //CARTELLA
-                files = create_file_system(JSON.get_child(boost::property_tree::ptree::path_type(tree.first, '/')), path_client + "/" + tree.first, path_server + "/" + tree.first, files);
-            }
-        }
-        return files;
-
-    }
-
-
-    void write_file(std::string path, std::vector<unsigned char> buffer){
-
-
-        std::basic_string<uint8_t> bytes;
-        std::string hex = std::string(buffer.begin(), buffer.end());
-
-        for (size_t i = 0; i < hex.length(); i += 2) {
-            uint16_t byte;
-            std::string nextbyte = hex.substr(i, 2);
-            std::istringstream(nextbyte) >> std::hex >> byte;
-            bytes.push_back(static_cast<uint8_t>(byte));
-        }
-
-        std::string result(begin(bytes), end(bytes));
-
-        std::vector<unsigned char> my_buff = std::vector<unsigned char>( result.begin(), result.end());
-        std::ofstream output_file(path, std::ios::binary | std::ios::out | std::fstream::app);
-
-        output_file.write((char*) &my_buff[0], my_buff.size());
-        output_file.close();
-
-    }
-
-    void JSON_differences(boost::property_tree::ptree JSON_server, boost::property_tree::ptree& JSON_client){
-
-        delete_from_client(JSON_server, JSON_client, path_.string());
-
-        add_to_client(JSON_server, JSON_client, path_.string(), username_ + "/" + path_.filename().string());
-    }
-
-    void add_to_client(boost::property_tree::ptree JSON_server, boost::property_tree::ptree& JSON_client, std::string path_client, std::string path_server) {
-        for (auto tree : JSON_server) {
-            if (tree.second.data() == "") {   //DIRECTORY
-
-                if (JSON_client.count(tree.first) == 0) {
-                    files = create_file_system(
-                            JSON_server.get_child(boost::property_tree::ptree::path_type(tree.first, '/')), path_client + "/" + tree.first,
-                            path_server + "/" + tree.first, files);
-                    JSON_client.add_child(tree.first, JSON_server.get_child(
-                            boost::property_tree::ptree::path_type(tree.first, '/')));
-                } else {
-                    add_to_client(JSON_server.get_child(boost::property_tree::ptree::path_type(tree.first, '/')), JSON_client.get_child(boost::property_tree::ptree::path_type(tree.first, '/')), path_client + "/" + tree.first, path_server + "/" + tree.first);
-                }
-            } else {
-                if(JSON_client.count(tree.first) == 0) {
-                    boost::property_tree::ptree file_JSON;
-                    file_JSON.put(boost::property_tree::ptree::path_type(tree.first, '/'), "X");
-                    files = create_file_system(file_JSON, path_client, path_server, files);
-                    JSON_client.put(boost::property_tree::ptree::path_type(tree.first, '/'), tree.second.data());
-                }
-                else if (JSON_client.get<std::string>(boost::property_tree::ptree::path_type(tree.first, '/')) != tree.second.data()){
-                    //DELETE DEL FILE
-
-                    boost::filesystem::remove(boost::filesystem::path(path_client + "/" + tree.first));
-                    boost::property_tree::ptree file_JSON;
-                    file_JSON.put(boost::property_tree::ptree::path_type(tree.first, '/'), "X");
-                    files = create_file_system(file_JSON, path_client, path_server, files);
-                    JSON_client.add(tree.first, tree.second.data());
-
-                }
-            }
-        }
-    }
-
-
-    void delete_from_client(boost::property_tree::ptree JSON_server, boost::property_tree::ptree& JSON_client, std::string path){
-
-        for(auto tree : JSON_client){
-
-            if(tree.second.data() == ""){   //DIRECTORY
-                if(JSON_server.count(tree.first) == 0){
-                    boost::filesystem::remove_all(boost::filesystem::path(path + "/" + tree.first));
-
-
-                    JSON_client.erase(tree.first);
-
-                } else {
-                    //CARTELLA ESISTE SUL CLIENT
-                    delete_from_client(JSON_server.get_child(boost::property_tree::ptree::path_type(tree.first, '/')), JSON_client.get_child(boost::property_tree::ptree::path_type(tree.first, '/')), path + "/" + tree.first);
-                }
-            } else {
-                if(JSON_server.count(tree.first) == 0){
-                    boost::filesystem::remove(boost::filesystem::path(path + "/" + tree.first));
-                }
-            }
-        }
-    }
 };

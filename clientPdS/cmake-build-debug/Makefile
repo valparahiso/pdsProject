@@ -143,6 +143,33 @@ clientPdS/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/clientPdS.dir/build.make CMakeFiles/clientPdS.dir/build
 .PHONY : clientPdS/fast
 
+JSON_utility.o: JSON_utility.cpp.o
+
+.PHONY : JSON_utility.o
+
+# target to build an object file
+JSON_utility.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/clientPdS.dir/build.make CMakeFiles/clientPdS.dir/JSON_utility.cpp.o
+.PHONY : JSON_utility.cpp.o
+
+JSON_utility.i: JSON_utility.cpp.i
+
+.PHONY : JSON_utility.i
+
+# target to preprocess a source file
+JSON_utility.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/clientPdS.dir/build.make CMakeFiles/clientPdS.dir/JSON_utility.cpp.i
+.PHONY : JSON_utility.cpp.i
+
+JSON_utility.s: JSON_utility.cpp.s
+
+.PHONY : JSON_utility.s
+
+# target to generate assembly for a file
+JSON_utility.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/clientPdS.dir/build.make CMakeFiles/clientPdS.dir/JSON_utility.cpp.s
+.PHONY : JSON_utility.cpp.s
+
 directory_exception.o: directory_exception.cpp.o
 
 .PHONY : directory_exception.o
@@ -196,6 +223,60 @@ file_watcher.s: file_watcher.cpp.s
 file_watcher.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/clientPdS.dir/build.make CMakeFiles/clientPdS.dir/file_watcher.cpp.s
 .PHONY : file_watcher.cpp.s
+
+filesystem_utility.o: filesystem_utility.cpp.o
+
+.PHONY : filesystem_utility.o
+
+# target to build an object file
+filesystem_utility.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/clientPdS.dir/build.make CMakeFiles/clientPdS.dir/filesystem_utility.cpp.o
+.PHONY : filesystem_utility.cpp.o
+
+filesystem_utility.i: filesystem_utility.cpp.i
+
+.PHONY : filesystem_utility.i
+
+# target to preprocess a source file
+filesystem_utility.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/clientPdS.dir/build.make CMakeFiles/clientPdS.dir/filesystem_utility.cpp.i
+.PHONY : filesystem_utility.cpp.i
+
+filesystem_utility.s: filesystem_utility.cpp.s
+
+.PHONY : filesystem_utility.s
+
+# target to generate assembly for a file
+filesystem_utility.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/clientPdS.dir/build.make CMakeFiles/clientPdS.dir/filesystem_utility.cpp.s
+.PHONY : filesystem_utility.cpp.s
+
+hash_utility.o: hash_utility.cpp.o
+
+.PHONY : hash_utility.o
+
+# target to build an object file
+hash_utility.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/clientPdS.dir/build.make CMakeFiles/clientPdS.dir/hash_utility.cpp.o
+.PHONY : hash_utility.cpp.o
+
+hash_utility.i: hash_utility.cpp.i
+
+.PHONY : hash_utility.i
+
+# target to preprocess a source file
+hash_utility.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/clientPdS.dir/build.make CMakeFiles/clientPdS.dir/hash_utility.cpp.i
+.PHONY : hash_utility.cpp.i
+
+hash_utility.s: hash_utility.cpp.s
+
+.PHONY : hash_utility.s
+
+# target to generate assembly for a file
+hash_utility.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/clientPdS.dir/build.make CMakeFiles/clientPdS.dir/hash_utility.cpp.s
+.PHONY : hash_utility.cpp.s
 
 main.o: main.cpp.o
 
@@ -314,12 +395,21 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... clientPdS"
+	@echo "... JSON_utility.o"
+	@echo "... JSON_utility.i"
+	@echo "... JSON_utility.s"
 	@echo "... directory_exception.o"
 	@echo "... directory_exception.i"
 	@echo "... directory_exception.s"
 	@echo "... file_watcher.o"
 	@echo "... file_watcher.i"
 	@echo "... file_watcher.s"
+	@echo "... filesystem_utility.o"
+	@echo "... filesystem_utility.i"
+	@echo "... filesystem_utility.s"
+	@echo "... hash_utility.o"
+	@echo "... hash_utility.i"
+	@echo "... hash_utility.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
