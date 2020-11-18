@@ -2,7 +2,9 @@
 #include "filesystem_utility.h"
 #include "hash_utility.h"
 #include "JSON_utility.h"
-
+#include "file_watcher.h"
+#include <bits/stdc++.h>
+#include <boost/algorithm/string.hpp>
 
 using boost::asio::steady_timer;
 using boost::asio::ip::tcp;
@@ -18,6 +20,7 @@ public:
               heartbeat_timer_(io_context),
               username_(username),
               password_(password),
+              directory_(directory),
               path_(boost::filesystem::path(directory)),
               command_(command)
     {
@@ -44,6 +47,7 @@ public:
     // response to graceful termination or an unrecoverable error.
     void stop()
     {
+        std::cout <<"CHIUSURA SOCKET... "<< std::endl;
         stopped_ = true;
         boost::system::error_code ignored_ec;
         socket_.close(ignored_ec);
@@ -158,73 +162,11 @@ private:
                     std::cout << "Autenticazione Fallita. Chiusura socket . . .  " << std::endl;
                     stop();
                 } else if(command_ == "check_validity"){
-                    if(JSON.get("connection", "connection_error") == "directory_error"){
-                        std::cout << "Directory invalida. Directory NON presente sul server. Chiusura socket . . .  " << std::endl;
-                        stop();
-                    } else if(JSON.get("connection", "connection_error") == "directory_valid"){
-                        std::cout << "Directory VALIDA. Client e server aggiornati. . . . Chiusura socket . . .  " << std::endl;
-                        stop();
-                    } else if(JSON.get("connection", "connection_error") == "directory_invalid"){
-                        std::cout << "Directory INVALIDA. Client e server NON aggiornati. . . . Chiusura socket . . .  " << std::endl;
-                        stop();
-                    }
-
+                    check_validity_fun(JSON);
                 } else if(command_ == "restore"){
-                    if(JSON.get("connection", "connection_error") == "directory_error"){
-                        std::cout << "Impossibile esguire il restore della directory. Directory NON presente sul server. Chiusura socket . . .  " << std::endl;
-                        stop();
-                    }
-                    else if(JSON.get("connection", "connection_error") == "directory_valid"){
-                        std::cout << "Directory di client e server sono già aggiornate . . . . Chiusura socket . . .  " << std::endl;
-                        stop();
-                    } else if(JSON.get("connection", "connection_error") == "empty_data"){
-                        files = filesystem_utility::create_file_system(JSON.get_child("data"), path_.string(), username_ + "/" + path_.filename().string(), files);
-                        if(!files.empty()){
-                            files[0].put("num_files", std::to_string(files.size()));
-                            files[0].put("index_file", "0");
-                            write_data(files[0]);
-                        }
-                    } else if(JSON.get("connection", "connection_error") == "sending_file"){
-                        std::string path_file = path_.string() + "/";
-                        for(int i=2; i<JSON.get<int>("size"); i++){
-                            path_file += JSON.get<std::string>(std::to_string(i)) + "/";
-                        }
-                        std::string data = JSON.get<std::string>("block_info.data");
-                        filesystem_utility::write_file(path_file + JSON.get<std::string>("file_name"), std::vector<unsigned char>(data.begin(), data.end()));
-                        if(JSON.get("block_info.status", "status_error") == "last"){
-                            int index_file = JSON.get<int>("index_file") +1;
-                            int num_files = JSON.get<int>("num_files");
-                            if(index_file == num_files){
-                                std::cout<<"CARTELLA AGGIORNATA CON SUCCESSO. . . . Chiusura socket. . . ."<<std::endl;
-                                stop();
-                            } else{
-                                files[index_file].put("index_file", std::to_string(index_file));
-                                files[index_file].put("num_files", std::to_string(num_files));
-                                write_data(files[index_file]);
-                            }
-
-                        } else {
-                            //Scriviamo che abbiamo ricevuto l'ultimo.
-                            JSON.put("connection", "file_received");
-                            write_data(JSON);
-                        }
-
-                    } else if(JSON.get("connection", "connection_error") == "differences"){
-                        files = JSON_utility::JSON_differences(JSON.get_child("data"), JSON_client.get_child("data"), username_, path_, files);
-                        if(!files.empty()){
-                            files[0].put("num_files", std::to_string(files.size()));
-                            files[0].put("index_file", "0");
-                            write_data(files[0]);
-                        } else {
-                            std::cout<<"CARTELLA AGGIORNATA CON SUCCESSO. . . . Chiusura socket. . . ."<<std::endl;
-                            stop();
-                        }
-
-                    }
-
+                    restore_fun(JSON);
                 } else if(command_ == "default"){
-
-
+                    default_fun(JSON);
                 }
             }
         }
@@ -300,6 +242,251 @@ private:
         deadline_.async_wait(boost::bind(&tcp_client::check_deadline, this));
     }
 
+    std::vector<boost::property_tree::ptree> to_file_from_bytes(std::string path_file){
+
+        std::vector<boost::property_tree::ptree> file_blocks;
+        std::ifstream size(path_file, std::ios::ate | std::ios::binary);
+        int file_size = size.tellg();
+        size.close();
+        if(file_size == -1){
+            std::cout<<"FILE INESITENTE "<<std::endl;
+            return file_blocks;
+        }
+
+        file_blocks = send_file(path_file, file_size, file_blocks, 0);
+        return file_blocks;
+    }
+
+    std::vector<boost::property_tree::ptree> send_file(std::string path_file, int bytes_to_transfer, std::vector<boost::property_tree::ptree> file_blocks, int offset){
+
+        std::cout<<"LEGGO DAL FILE PARTENDO DALL'INDICE "<<0<<" MANCANO DA LEGGERE " << bytes_to_transfer << " bytes" <<std::endl;
+        std::ifstream input(path_file, std::ios::in | std::ios::binary);
+        input.seekg (offset);
+
+
+        boost::property_tree::ptree file_asked;
+        int size = 1024;
+        if(bytes_to_transfer >= 1024){
+            bytes_to_transfer -= 1024;
+        } else {
+            if(bytes_to_transfer >= 0) {
+                size = bytes_to_transfer;
+                bytes_to_transfer = -1;
+                file_asked.put("status", "last");
+            } else {
+                input.close();
+                return file_blocks;
+            }
+        }
+
+
+        std::vector<unsigned char> buffer(size);
+        //std::cout<<"LEGGO DAL FILE PARTENDO DALL'INDICE "<<index<<" UNA SIZE DI " << buffer.size() << " bytes" <<std::endl;
+        input.read((char*)&buffer[0], buffer.size());
+
+        std::stringstream buffer_hex;
+        file_asked.put("status", "");
+        for(int i=0; i<buffer.size(); i++){
+            buffer_hex << std::hex << std::setw(2) << std::setfill('0') << +buffer[i];
+        }
+
+        file_asked.put("data", std::string(buffer_hex.str()));
+
+        file_blocks.push_back(file_asked);
+        file_blocks = send_file(path_file, bytes_to_transfer, file_blocks, offset + 1024);
+        return file_blocks;
+    }
+
+    void check_validity_fun(boost::property_tree::ptree& JSON){
+        if(JSON.get("connection", "connection_error") == "directory_error"){
+            std::cout << "Directory invalida. Directory NON presente sul server. Chiusura socket . . .  " << std::endl;
+            stop();
+        } else if(JSON.get("connection", "connection_error") == "directory_valid"){
+            std::cout << "Directory VALIDA. Client e server aggiornati. . . . Chiusura socket . . .  " << std::endl;
+            stop();
+        } else if(JSON.get("connection", "connection_error") == "directory_invalid"){
+            std::cout << "Directory INVALIDA. Client e server NON aggiornati. . . . Chiusura socket . . .  " << std::endl;
+            stop();
+        }
+    }
+
+    void restore_fun(boost::property_tree::ptree& JSON){
+        if(JSON.get("connection", "connection_error") == "directory_error"){
+            std::cout << "Impossibile esguire il restore della directory. Directory NON presente sul server. Chiusura socket . . .  " << std::endl;
+            stop();
+        }
+        else if(JSON.get("connection", "connection_error") == "directory_valid"){
+            std::cout << "Directory di client e server sono già aggiornate . . . . Chiusura socket . . .  " << std::endl;
+            stop();
+        } else if(JSON.get("connection", "connection_error") == "empty_data"){
+            empty_data_fun(JSON);
+        } else if(JSON.get("connection", "connection_error") == "sending_file"){
+            sending_file_fun(JSON);
+        } else if(JSON.get("connection", "connection_error") == "differences"){
+            differences_fun(JSON);
+        }
+    }
+
+    void empty_data_fun(boost::property_tree::ptree& JSON){
+        files = filesystem_utility::create_file_system(JSON.get_child("data"), path_.string(), username_ + "/" + path_.filename().string(), files);
+        if(!files.empty()){
+            files[0].put("num_files", std::to_string(files.size()));
+            files[0].put("index_file", "0");
+            write_data(files[0]);
+        }
+    }
+
+    boost::property_tree::ptree create_request(boost::property_tree::ptree& JSON, std::string path){
+        files = filesystem_utility::create_file_system(JSON.get_child("data"), path, username_ + "/" + path, files);
+        if(!files.empty()){
+            files[0].put("num_files", std::to_string(files.size()));
+            files[0].put("index_file", "0");
+        }
+        return files[0];
+    }
+
+    void sending_file_fun(boost::property_tree::ptree& JSON){
+        std::string path_file = path_.string() + "/";
+        for(int i=2; i<JSON.get<int>("size"); i++){
+            path_file += JSON.get<std::string>(std::to_string(i)) + "/";
+        }
+        std::string data = JSON.get<std::string>("block_info.data");
+        filesystem_utility::write_file(path_file + JSON.get<std::string>("file_name"), std::vector<unsigned char>(data.begin(), data.end()));
+        if(JSON.get("block_info.status", "status_error") == "last"){
+            int index_file = JSON.get<int>("index_file") +1;
+            int num_files = JSON.get<int>("num_files");
+            if(index_file == num_files){
+                std::cout<<"CARTELLA AGGIORNATA CON SUCCESSO. . . . Chiusura socket. . . ."<<std::endl;
+                stop();
+            } else{
+                files[index_file].put("index_file", std::to_string(index_file));
+                files[index_file].put("num_files", std::to_string(num_files));
+                write_data(files[index_file]);
+            }
+
+        } else {
+            //Scriviamo che abbiamo ricevuto l'ultimo.
+            JSON.put("connection", "file_received");
+            write_data(JSON);
+        }
+    }
+
+    void differences_fun(boost::property_tree::ptree& JSON){
+        files = JSON_utility::JSON_differences(JSON.get_child("data"), JSON_client.get_child("data"), username_, path_, files);
+        if(!files.empty()){
+            files[0].put("num_files", std::to_string(files.size()));
+            files[0].put("index_file", "0");
+            write_data(files[0]);
+        } else {
+            std::cout<<"CARTELLA AGGIORNATA CON SUCCESSO. . . . Chiusura socket. . . ."<<std::endl;
+            stop();
+        }
+    }
+
+    void default_fun(boost::property_tree::ptree& JSON){
+        if(JSON.get("connection", "connection_error") == "ask_file"){
+            ask_file_fun(JSON,0);
+        }
+        else if(JSON.get("connection", "connection_error") == "file_received") {
+            file_received_fun(JSON);
+        }
+        else if(JSON.get("connection", "connection_error") == "default_directory_valid") {
+            std::cout<<"Allineati server e client!\nStarting watcher..."<<std::endl;
+            start_watcher();
+        }
+    }
+
+    void start_watcher(){
+        FileWatcher fw{path_.string(), std::chrono::milliseconds(5000)};
+        JSON_client_old = JSON_client;
+        std::vector<std::string> result;
+        std::string correct_path = "";
+        boost::split(result, directory_, boost::is_any_of("/"));
+        std::string dir = result[result.size()-1];
+        files.clear();
+        file_blocks.clear();
+        // Start monitoring a folder for changes and (in case of changes)
+        // run a user provided lambda function
+        int status = fw.start([dir, this] (std::string path_to_watch, FileStatus status) -> int {
+            // Process only regular files, all other file types are ignored
+            if(!std::experimental::filesystem::is_regular_file(std::experimental::filesystem::path(path_to_watch)) && status != FileStatus::erased) {
+                return -1;
+            }
+            int statusVal = -1;
+
+            switch(status) {
+                case FileStatus::created: {
+                    statusVal = 1;
+
+                    break;
+                }
+                case FileStatus::modified: {
+                    std::cout << "File modified: " << path_to_watch << '\n';
+                    statusVal = 1;
+                    break;
+                }
+                case FileStatus::erased: {
+                    std::cout << "File erased: " << path_to_watch << '\n';
+                    statusVal = 1;
+                    break;
+                }
+                default: {
+                    std::cout << "Error! Unknown file status.\n";
+                    statusVal = 4;
+                }
+            }
+
+            return statusVal;
+        });
+
+        std::cout<<"Status value: " << status <<std::endl;
+
+        if(status == 1){
+            JSON_client = JSON_utility::create_json(username_, password_, "default", path_);
+            write_data(JSON_client);
+        }
+    }
+
+    void ask_file_fun(boost::property_tree::ptree& JSON,int start){
+        std::cout<<"SERVER CHIEDE UN FILE"<<std::endl;
+        std::string path = "";
+        for(int i=start; i<JSON.get<int>("size"); i++){
+            path += JSON.get<std::string>(std::to_string(i)) + "/";
+        }
+        path += JSON.get<std::string>("file_name");
+        std::cout<<"PERCORSO FILE : " << path<<std::endl;
+        file_blocks = to_file_from_bytes(path);
+
+        if(file_blocks.size() > 0){
+
+            if(file_blocks.size() == 1) file_blocks[0].put("status", "last");
+            JSON.put("connection","sending_file");
+            file_blocks[0].put("num_blocks", std::to_string(file_blocks.size()));
+            file_blocks[0].put("index_block", "0");
+            JSON.add_child("block_info", file_blocks[0]);
+            write_data(JSON);
+        }
+    }
+
+    void file_received_fun(boost::property_tree::ptree& JSON){
+        std::cout << "SERVER CHIEDE UN ALTRO PEZZO DEL FILE" << std::endl;
+        int index_block = JSON.get<int>("block_info.index_block") + 1;
+        int num_blocks = JSON.get<int>("block_info.num_blocks");
+
+        if (index_block + 1 == num_blocks) {
+            //E' l'ultimo
+            //E' l'ultimo
+            file_blocks[index_block].put("status", "last");
+        }
+        file_blocks[index_block].put("index_block", std::to_string(index_block));
+        file_blocks[index_block].put("num_blocks", std::to_string(num_blocks));
+        JSON.erase("block_info");
+        JSON.add_child("block_info", file_blocks[index_block]);
+        JSON.put("connection", "sending_file");
+
+        write_data(JSON);
+    }
+
 private:
     bool stopped_;
     tcp::resolver::results_type endpoints_;
@@ -312,5 +499,9 @@ private:
     std::vector<boost::property_tree::ptree> files;
     boost::filesystem::path path_;
     std::string command_;
+    std::string directory_;
     boost::property_tree::ptree JSON_client;
+    boost::property_tree::ptree JSON_client_old;
+    std::vector<boost::property_tree::ptree> file_blocks;
+
 };

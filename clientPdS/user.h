@@ -49,12 +49,16 @@ private:
 
     void check_directory(){
         boost::filesystem::path path(directory);
+        std::cout<<"check: " << path << std::endl;
         if(exists(path)){
             if(is_directory(path)){
                 directory = boost::filesystem::absolute(boost::filesystem::canonical(path)).string();
+                std::cout<<"directory: " << directory << std::endl;
+
                 return;
             }
         }
+
         throw directory_exception();
     }
 

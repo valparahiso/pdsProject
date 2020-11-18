@@ -8,38 +8,38 @@
 		<Option virtualFolders="CMake Files\;"/>
 		<Build>
 			<Target title="all">
-				<Option working_dir="/home/simo/pdsProject/clientPdS/cmake-build-debug"/>
+				<Option working_dir="/home/mik/CLionProjects/pdsProject/clientPdS/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j8 -f &quot;/home/simo/pdsProject/clientPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
-					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/simo/pdsProject/clientPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j8 -f &quot;/home/simo/pdsProject/clientPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j8 -f &quot;/home/simo/pdsProject/clientPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -f &quot;/home/mik/CLionProjects/pdsProject/clientPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -f &quot;/home/mik/CLionProjects/pdsProject/clientPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/home/mik/CLionProjects/pdsProject/clientPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/home/mik/CLionProjects/pdsProject/clientPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="rebuild_cache">
-				<Option working_dir="/home/simo/pdsProject/clientPdS/cmake-build-debug"/>
+				<Option working_dir="/home/mik/CLionProjects/pdsProject/clientPdS/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j8 -f &quot;/home/simo/pdsProject/clientPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
-					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/simo/pdsProject/clientPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j8 -f &quot;/home/simo/pdsProject/clientPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j8 -f &quot;/home/simo/pdsProject/clientPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -f &quot;/home/mik/CLionProjects/pdsProject/clientPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -f &quot;/home/mik/CLionProjects/pdsProject/clientPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/home/mik/CLionProjects/pdsProject/clientPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/home/mik/CLionProjects/pdsProject/clientPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="edit_cache">
-				<Option working_dir="/home/simo/pdsProject/clientPdS/cmake-build-debug"/>
+				<Option working_dir="/home/mik/CLionProjects/pdsProject/clientPdS/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j8 -f &quot;/home/simo/pdsProject/clientPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
-					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/simo/pdsProject/clientPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j8 -f &quot;/home/simo/pdsProject/clientPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j8 -f &quot;/home/simo/pdsProject/clientPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -f &quot;/home/mik/CLionProjects/pdsProject/clientPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -f &quot;/home/mik/CLionProjects/pdsProject/clientPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/home/mik/CLionProjects/pdsProject/clientPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/home/mik/CLionProjects/pdsProject/clientPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="clientPdS">
-				<Option output="/home/simo/pdsProject/clientPdS/cmake-build-debug/clientPdS" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/simo/pdsProject/clientPdS/cmake-build-debug"/>
+				<Option output="/home/mik/CLionProjects/pdsProject/clientPdS/cmake-build-debug/clientPdS" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/mik/CLionProjects/pdsProject/clientPdS/cmake-build-debug"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
 				<Option compiler="gcc"/>
@@ -53,15 +53,15 @@
 					<Add directory="/usr/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j8 -f &quot;/home/simo/pdsProject/clientPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clientPdS"/>
-					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/simo/pdsProject/clientPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j8 -f &quot;/home/simo/pdsProject/clientPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j8 -f &quot;/home/simo/pdsProject/clientPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -f &quot;/home/mik/CLionProjects/pdsProject/clientPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clientPdS"/>
+					<CompileFile command="/usr/bin/make -f &quot;/home/mik/CLionProjects/pdsProject/clientPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/home/mik/CLionProjects/pdsProject/clientPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/home/mik/CLionProjects/pdsProject/clientPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="clientPdS/fast">
-				<Option output="/home/simo/pdsProject/clientPdS/cmake-build-debug/clientPdS" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/simo/pdsProject/clientPdS/cmake-build-debug"/>
+				<Option output="/home/mik/CLionProjects/pdsProject/clientPdS/cmake-build-debug/clientPdS" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/mik/CLionProjects/pdsProject/clientPdS/cmake-build-debug"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
 				<Option compiler="gcc"/>
@@ -75,65 +75,65 @@
 					<Add directory="/usr/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -j8 -f &quot;/home/simo/pdsProject/clientPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clientPdS/fast"/>
-					<CompileFile command="/usr/bin/make -j8 -f &quot;/home/simo/pdsProject/clientPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j8 -f &quot;/home/simo/pdsProject/clientPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j8 -f &quot;/home/simo/pdsProject/clientPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -f &quot;/home/mik/CLionProjects/pdsProject/clientPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clientPdS/fast"/>
+					<CompileFile command="/usr/bin/make -f &quot;/home/mik/CLionProjects/pdsProject/clientPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/home/mik/CLionProjects/pdsProject/clientPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/home/mik/CLionProjects/pdsProject/clientPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="/home/simo/pdsProject/clientPdS/JSON_utility.cpp">
+		<Unit filename="/home/mik/CLionProjects/pdsProject/clientPdS/JSON_utility.cpp">
 			<Option target="clientPdS"/>
 		</Unit>
-		<Unit filename="/home/simo/pdsProject/clientPdS/JSON_utility.h">
+		<Unit filename="/home/mik/CLionProjects/pdsProject/clientPdS/JSON_utility.h">
 			<Option target="clientPdS"/>
 		</Unit>
-		<Unit filename="/home/simo/pdsProject/clientPdS/directory_exception.cpp">
+		<Unit filename="/home/mik/CLionProjects/pdsProject/clientPdS/directory_exception.cpp">
 			<Option target="clientPdS"/>
 		</Unit>
-		<Unit filename="/home/simo/pdsProject/clientPdS/directory_exception.h">
+		<Unit filename="/home/mik/CLionProjects/pdsProject/clientPdS/directory_exception.h">
 			<Option target="clientPdS"/>
 		</Unit>
-		<Unit filename="/home/simo/pdsProject/clientPdS/file_watcher.cpp">
+		<Unit filename="/home/mik/CLionProjects/pdsProject/clientPdS/file_watcher.cpp">
 			<Option target="clientPdS"/>
 		</Unit>
-		<Unit filename="/home/simo/pdsProject/clientPdS/file_watcher.h">
+		<Unit filename="/home/mik/CLionProjects/pdsProject/clientPdS/file_watcher.h">
 			<Option target="clientPdS"/>
 		</Unit>
-		<Unit filename="/home/simo/pdsProject/clientPdS/filesystem_utility.cpp">
+		<Unit filename="/home/mik/CLionProjects/pdsProject/clientPdS/filesystem_utility.cpp">
 			<Option target="clientPdS"/>
 		</Unit>
-		<Unit filename="/home/simo/pdsProject/clientPdS/filesystem_utility.h">
+		<Unit filename="/home/mik/CLionProjects/pdsProject/clientPdS/filesystem_utility.h">
 			<Option target="clientPdS"/>
 		</Unit>
-		<Unit filename="/home/simo/pdsProject/clientPdS/hash_utility.cpp">
+		<Unit filename="/home/mik/CLionProjects/pdsProject/clientPdS/hash_utility.cpp">
 			<Option target="clientPdS"/>
 		</Unit>
-		<Unit filename="/home/simo/pdsProject/clientPdS/hash_utility.h">
+		<Unit filename="/home/mik/CLionProjects/pdsProject/clientPdS/hash_utility.h">
 			<Option target="clientPdS"/>
 		</Unit>
-		<Unit filename="/home/simo/pdsProject/clientPdS/main.cpp">
+		<Unit filename="/home/mik/CLionProjects/pdsProject/clientPdS/main.cpp">
 			<Option target="clientPdS"/>
 		</Unit>
-		<Unit filename="/home/simo/pdsProject/clientPdS/parameters_exception.cpp">
+		<Unit filename="/home/mik/CLionProjects/pdsProject/clientPdS/parameters_exception.cpp">
 			<Option target="clientPdS"/>
 		</Unit>
-		<Unit filename="/home/simo/pdsProject/clientPdS/parameters_exception.h">
+		<Unit filename="/home/mik/CLionProjects/pdsProject/clientPdS/parameters_exception.h">
 			<Option target="clientPdS"/>
 		</Unit>
-		<Unit filename="/home/simo/pdsProject/clientPdS/tcp_client.cpp">
+		<Unit filename="/home/mik/CLionProjects/pdsProject/clientPdS/tcp_client.cpp">
 			<Option target="clientPdS"/>
 		</Unit>
-		<Unit filename="/home/simo/pdsProject/clientPdS/tcp_client.h">
+		<Unit filename="/home/mik/CLionProjects/pdsProject/clientPdS/tcp_client.h">
 			<Option target="clientPdS"/>
 		</Unit>
-		<Unit filename="/home/simo/pdsProject/clientPdS/user.cpp">
+		<Unit filename="/home/mik/CLionProjects/pdsProject/clientPdS/user.cpp">
 			<Option target="clientPdS"/>
 		</Unit>
-		<Unit filename="/home/simo/pdsProject/clientPdS/user.h">
+		<Unit filename="/home/mik/CLionProjects/pdsProject/clientPdS/user.h">
 			<Option target="clientPdS"/>
 		</Unit>
-		<Unit filename="/home/simo/pdsProject/clientPdS/CMakeLists.txt">
+		<Unit filename="/home/mik/CLionProjects/pdsProject/clientPdS/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
 		</Unit>
 	</Project>
