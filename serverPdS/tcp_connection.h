@@ -466,11 +466,11 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
             for(int i=1; i<JSON_client.get<int>("size"); i++){
                 std::string directoryToCheck = JSON_client.get<std::string>(std::to_string(i));
                 std::cout<<"directory to check: " << directoryToCheck<<std::endl;
-                if(!boost::filesystem::exists(directoryToCheck)) {
+                /*if(!boost::filesystem::exists(directoryToCheck)) {
                     std::cout<<"creo: " << directoryToCheck<<std::endl;
                     std::cout<<"path_file: " << path_file<<std::endl;
                     boost::filesystem::create_directory(directoryToCheck);
-                }
+                }*/
                 path_file += JSON_client.get<std::string>(std::to_string(i)) + "/";
 
             }

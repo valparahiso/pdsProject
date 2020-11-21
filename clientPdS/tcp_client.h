@@ -102,6 +102,8 @@ private:
 
             // We need to close the socket used in the previous connection attempt
             // before starting a new one.
+
+
             socket_.close();
 
             // Try the next available endpoint.
@@ -172,6 +174,7 @@ private:
         }
         else
         {
+            std::perror("Error: ");
             std::cout << "Error on receive: " << ec.message() << "\n";
 
             stop();
@@ -230,7 +233,8 @@ private:
         {
             // The deadline has passed. The socket is closed so that any outstanding
             // asynchronous operations are cancelled.
-            socket_.close();
+            std::cout << "deadline_ " << "\n";
+            //socket_.close();
 
             // There is no longer an active deadline. The expiry is set to the
             // maximum time point so that the actor takes no action until a new
