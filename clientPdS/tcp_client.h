@@ -24,8 +24,9 @@ public:
               path_(boost::filesystem::path(directory)),
               command_(command)
     {
-
-
+        if(command == "default"){
+            fw = new FileWatcher(boost::filesystem::path(directory).string(), std::chrono::milliseconds(5000));
+        }
     }
 
     // Called by the user of the user class to initiate the connection process.
@@ -401,7 +402,6 @@ private:
     }
 
     void start_watcher(){
-        FileWatcher fw{path_.string(), std::chrono::milliseconds(5000)};
         JSON_client_old = JSON_client;
         std::vector<std::string> result;
         std::string correct_path = "";
@@ -411,10 +411,10 @@ private:
         file_blocks.clear();
         // Start monitoring a folder for changes and (in case of changes)
         // run a user provided lambda function
-        int status = fw.start([dir, this] (std::string path_to_watch, FileStatus status) -> int {
+        int status = fw->start([dir, this] (std::string path_to_watch, FileStatus status) -> int {
             // Process only regular files, all other file types are ignored
             if(!std::experimental::filesystem::is_regular_file(std::experimental::filesystem::path(path_to_watch)) && status != FileStatus::erased) {
-                return -1;
+                return 1;
             }
             int statusVal = -1;
 
@@ -449,12 +449,15 @@ private:
             JSON_client = JSON_utility::create_json(username_, password_, "default", path_);
             write_data(JSON_client);
         }
+        else{
+            start_watcher();
+        }
     }
 
     void ask_file_fun(boost::property_tree::ptree& JSON,int start){
         std::cout<<"SERVER CHIEDE UN FILE"<<std::endl;
-        std::string path = "";
-        for(int i=start; i<JSON.get<int>("size"); i++){
+        std::string path = path_.string() + "/";
+        for(int i=1; i<JSON.get<int>("size"); i++){
             path += JSON.get<std::string>(std::to_string(i)) + "/";
         }
         path += JSON.get<std::string>("file_name");
@@ -507,5 +510,6 @@ private:
     boost::property_tree::ptree JSON_client;
     boost::property_tree::ptree JSON_client_old;
     std::vector<boost::property_tree::ptree> file_blocks;
+    FileWatcher* fw;
 
 };
