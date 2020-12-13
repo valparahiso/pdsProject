@@ -5,6 +5,7 @@
 #include "file_watcher.h"
 #include <bits/stdc++.h>
 #include <boost/algorithm/string.hpp>
+#define MAX_ATTEMPT 5
 
 using boost::asio::steady_timer;
 using boost::asio::ip::tcp;
@@ -24,6 +25,7 @@ public:
               path_(boost::filesystem::path(directory)),
               command_(command)
     {
+        attempt_ = 0;
         if(command == "default"){
             fw = new FileWatcher(boost::filesystem::path(directory).string(), std::chrono::milliseconds(5000));
         }
@@ -108,7 +110,18 @@ private:
             socket_.close();
 
             // Try the next available endpoint.
-            start_connect(++endpoint_iter);
+            std::cout<<"Server offline, tento una nuova connessione . . . "<<std::endl;
+            std::cout<<"Connessione " << attempt_ << "/" << MAX_ATTEMPT <<std::endl;
+
+            if(attempt_ < MAX_ATTEMPT) {
+                attempt_++;
+                sleep(5);
+                start_connect(endpoint_iter);
+            }
+            else{
+                std::cout<<"Numero massimo di tentativi raggiunto..."<<std::endl;
+                stop();
+            }
         }
 
             // Otherwise we have successfully established a connection.
@@ -511,5 +524,6 @@ private:
     boost::property_tree::ptree JSON_client_old;
     std::vector<boost::property_tree::ptree> file_blocks;
     FileWatcher* fw;
+    int attempt_;
 
 };

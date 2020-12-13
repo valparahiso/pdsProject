@@ -24,7 +24,7 @@ boost::property_tree::ptree JSON_utility::create_json(const std::string& usernam
     JSON.add_child("dir_and_command", dir_and_command);
 
     if(exists(path_) && is_directory(path_)){
-        JSON.add_child("data", JSON_utility::create_data_json(path_));
+        JSON.add_child("data", JSON_utility::create_data_json(path_, 0));
     } else JSON.put("data", "");
 
     JSON_utility::print_JSON(JSON);
@@ -32,17 +32,22 @@ boost::property_tree::ptree JSON_utility::create_json(const std::string& usernam
 
 }
 
-boost::property_tree::ptree JSON_utility::create_data_json(const boost::filesystem::path& path){
-    boost::property_tree::ptree directory;
-    for (auto& entry : boost::filesystem::directory_iterator(path)){
-        if(is_regular_file(entry.path())){
-            directory.put(boost::property_tree::ptree::path_type(entry.path().filename().string(), '/'), hash_utility::calculate_hash(entry.path().string()));
-        } else {
-            directory.add_child(boost::property_tree::ptree::path_type(entry.path().filename().string(), '/'), JSON_utility::create_data_json(entry.path()));
+boost::property_tree::ptree JSON_utility::create_data_json(const boost::filesystem::path& path, int option){
+
+        boost::property_tree::ptree directory;
+
+        for (auto& entry : boost::filesystem::directory_iterator(path)){
+            if(is_regular_file(entry.path())){
+                if(option==0)
+                    directory.put(boost::property_tree::ptree::path_type(entry.path().filename().string(), '/'), hash_utility::calculate_hash(entry.path().string()));
+                else
+                    directory.put(boost::property_tree::ptree::path_type(entry.path().filename().string(), '/'), "X");
+            } else {
+                directory.add_child(boost::property_tree::ptree::path_type(entry.path().filename().string(), '/'), create_data_json(entry.path(), option));
+            }
         }
-    }
-    directory.sort();
-    return directory;
+        directory.sort();
+        return directory;
 }
 
 std::vector<boost::property_tree::ptree> JSON_utility::JSON_differences(const boost::property_tree::ptree& JSON_destination, boost::property_tree::ptree JSON_source,

@@ -5,6 +5,7 @@
 #ifndef PDSPROJECT_TCP_SERVER_H
 #define PDSPROJECT_TCP_SERVER_H
 #include "tcp_connection.h"
+#include "thread_pool.h"
 #include <ctime>
 #include <iostream>
 #include <string>
@@ -21,6 +22,7 @@ public:
             : io_context_(io_context),
               acceptor_(io_context, tcp::endpoint(tcp::v4(), 8001))
     {
+        pool = new thread_pool();
         start_accept();
     }
 
@@ -29,7 +31,6 @@ private:
     {
         tcp_connection::pointer new_connection =
                 tcp_connection::create(io_context_);
-
         acceptor_.async_accept(new_connection->socket(),
                                boost::bind(&tcp_server::handle_accept, this, new_connection,
                                            boost::asio::placeholders::error));
@@ -40,7 +41,7 @@ private:
     {
         if (!error)
         {
-            new_connection->start();
+            pool->push(new_connection);
         }
 
         start_accept();
@@ -48,6 +49,8 @@ private:
 
     boost::asio::io_context& io_context_;
     tcp::acceptor acceptor_;
+    thread_pool *pool;
+
 };
 
 

@@ -4,7 +4,6 @@
 
 #ifndef PDSPROJECT_TCP_CONNECTION_H
 #define PDSPROJECT_TCP_CONNECTION_H
-
 #include <ctime>
 #include <iostream>
 #include <string>
@@ -13,12 +12,12 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/asio.hpp>
-#include <sqlite3.h>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/filesystem.hpp>
 #include <openssl/md5.h>
 #include <sys/mman.h>
 #include "JSON_utility.h"
+#include "db_utility.h"
 
 class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
     public:
@@ -70,6 +69,7 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
 
         void handle_write_data(const boost::system::error_code& /*error*/, size_t /*bytes_transferred*/){
             std::cout<< "writed" << std::endl;
+            //pool->pop(index);
             read_data();
 
         }
@@ -113,7 +113,7 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
         void login_fun(){
             set_login();
 
-            if(login_db(username_, password_)){
+            if(db_utility::login_db(username_, password_)){
                 JSON_client.put("connection", "logged");
                 command_ = JSON_client.get("dir_and_command.command", "NO_COMMAND");
                 path_ = boost::filesystem::path(username_ + "/" + JSON_client.get("dir_and_command.directory", "NO_DIRECTORY"));
@@ -133,49 +133,6 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
             }
         }
 
-        bool login_db(std::string username, std::string password){
-            sqlite3 *db;
-            int rc;
-            char *zErrMsg = 0;
-
-            rc = sqlite3_open("db/server.db", &db);
-
-            if( rc )
-            {
-                std::cout<<"- Can't open database: "<<sqlite3_errmsg(db)<<std::endl;
-            }
-            else
-            {
-                std::cout<<"- Opening database . . . .     ";
-            }
-
-            std::string query_string = "select count(*) from user where username = '" + username + "' and password = '" + password + "'";
-            const char *query = query_string.c_str();
-
-            rc = sqlite3_exec(db, query, check_login, nullptr, &zErrMsg);
-            if( rc!=SQLITE_OK )
-            {
-                std::cout<<"SQL error: "<<sqlite3_errmsg(db)<<"\n";
-                sqlite3_free(zErrMsg);
-                sqlite3_close(db);
-                return false;
-            }
-
-            sqlite3_close(db);
-            return true;
-        }
-
-        static int check_login(void *NotUsed, int argc, char **argv, char **azColName)
-        {
-            if(std::string(argv[0]) == "1"){
-                std::cout<<"Utente presente nel DB . . . ."<<std::endl;
-                return 0;
-            } else {
-                std::cout<<"Utente NON presente nel DB . . . ."<<std::endl;
-                return 1;
-            }
-        }
-
         bool check_directory(boost::filesystem::path path){
             if(exists(path)){
                 if(is_directory(path)){
@@ -187,7 +144,7 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
 
         bool check_validity(boost::property_tree::ptree JSON_client){
             JSON_client.sort();
-            JSON_server.add_child("data", create_data_json(path_, 0));
+            JSON_server.add_child("data", JSON_utility::create_data_json(path_, 0));
             boost::property_tree::ptree JSON_server_sorted = JSON_server.get_child("data");
             JSON_server_sorted.sort();
             std::cout<<"****************************************************************************"<<std::endl;
@@ -196,54 +153,7 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
             return (JSON_server_sorted == JSON_client);
         }
 
-        boost::property_tree::ptree create_data_json(boost::filesystem::path path, int option){
 
-            boost::property_tree::ptree directory;
-
-            for (auto& entry : boost::filesystem::directory_iterator(path)){
-                if(is_regular_file(entry.path())){
-                    if(option==0)
-                        directory.put(boost::property_tree::ptree::path_type(entry.path().filename().string(), '/'), calculate_hash(entry.path().string()));
-                    else
-                        directory.put(boost::property_tree::ptree::path_type(entry.path().filename().string(), '/'), "X");
-                } else {
-                    directory.add_child(boost::property_tree::ptree::path_type(entry.path().filename().string(), '/'), create_data_json(entry.path(), option));
-                }
-            }
-            directory.sort();
-            return directory;
-
-        }
-
-        static unsigned long get_size_by_fd(int fd) {
-            struct stat statbuf;
-            if(fstat(fd, &statbuf) < 0) exit(-1); //uscita controllata TODO
-            return statbuf.st_size;
-        }
-
-        static std::string calculate_hash(std::string file_path){
-            unsigned char result[MD5_DIGEST_LENGTH];
-            int file_descriptor;
-            unsigned long file_size;
-            char* file_buffer;
-            std::ostringstream out;
-
-            file_descriptor = open(file_path.c_str(), O_RDONLY);
-            if(file_descriptor < 0) exit(-1); //uscita controllata TODO
-
-            file_size = get_size_by_fd(file_descriptor);
-
-            file_buffer = static_cast<char *>(mmap(0, file_size, PROT_READ, MAP_SHARED, file_descriptor, 0));
-            MD5((unsigned char*) file_buffer, file_size, result);
-            munmap(file_buffer, file_size);
-            for(int i=0; i <MD5_DIGEST_LENGTH; i++) {
-                out << std::uppercase << std::hex << std::setw(2) << std::setfill('0') << +result[i]; //The unary "+" performs an integral promotion to int.
-                //https://stackoverflow.com/questions/42902594/stdhex-does-not-work-as-i-expect
-            }
-
-            return out.str();
-
-        }
 
         std::vector<boost::property_tree::ptree> to_file_from_bytes(std::string path_file){
 
@@ -323,7 +233,7 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
                 } else if(JSON_client.get_child("data").empty()){
                     std::cout<<"CARTELLA NON PRESENTE SUL CLIENT"<<std::endl;
                     JSON_server = JSON_client;
-                    JSON_server.put_child("data",create_data_json(path_, 1));
+                    JSON_server.put_child("data",JSON_utility::create_data_json(path_, 1));
                     JSON_server.put("connection", "empty_data");
                     write_data(JSON_server);
                 } else {
@@ -512,6 +422,8 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
         boost::property_tree::ptree JSON_client; //filesystem del client
         std::vector<boost::property_tree::ptree> file_blocks;
         std::vector<boost::property_tree::ptree> files;
+
+
 
 };
 

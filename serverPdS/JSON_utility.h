@@ -17,7 +17,7 @@ namespace JSON_utility {
 
     boost::property_tree::ptree create_json(const std::string& username_, std::string password_, const std::string& command_, const boost::filesystem::path& path_);
 
-    boost::property_tree::ptree create_data_json(const boost::filesystem::path& path);
+    boost::property_tree::ptree create_data_json(const boost::filesystem::path& path, int option);
 
     std::vector<boost::property_tree::ptree> JSON_differences(const boost::property_tree::ptree& JSON_destination, boost::property_tree::ptree JSON_source,
                                                               const std::string& username_, const boost::filesystem::path& path_, std::vector<boost::property_tree::ptree> files_to_ask);
