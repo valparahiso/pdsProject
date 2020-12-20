@@ -7,6 +7,13 @@ int main(){
     try{
         boost::asio::io_context io_context;
         tcp_server server(io_context);
+        std::vector<std::thread> threads;
+        threads.reserve(2);
+        for(int i=0; i<2; i++)
+            threads.emplace_back(std::thread(
+                    [&io_context](){
+                        io_context.run();
+                    }));
         io_context.run();
     }
     catch (std::exception& e){

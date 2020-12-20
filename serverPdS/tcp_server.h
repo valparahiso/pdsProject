@@ -22,7 +22,6 @@ public:
             : io_context_(io_context),
               acceptor_(io_context, tcp::endpoint(tcp::v4(), 8001))
     {
-        pool = new thread_pool();
         start_accept();
     }
 
@@ -41,7 +40,7 @@ private:
     {
         if (!error)
         {
-            pool->push(new_connection);
+            new_connection->start();
         }
 
         start_accept();
@@ -49,7 +48,6 @@ private:
 
     boost::asio::io_context& io_context_;
     tcp::acceptor acceptor_;
-    thread_pool *pool;
 
 };
 

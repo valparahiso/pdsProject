@@ -138,7 +138,7 @@ private:
         std::cout<<"READING DATA"<<std::endl;
 
         // Set a deadline for the read operation.
-        deadline_.expires_after(boost::asio::chrono::seconds(30));
+        //deadline_.expires_after(boost::asio::chrono::seconds(100));
 
         std::cout<<"******************** In read DATA"<<std::endl;
 
@@ -173,7 +173,7 @@ private:
                 boost::property_tree::ptree JSON;
                 read_json(ss, JSON);
 
-                std::cout << "Received: " << line << "\n";
+                //std::cout << "Received: " << line << "\n";
                 if(JSON.get("connection", "connection_error") == "login_error"){
                     std::cout << "Autenticazione Fallita. Chiusura socket . . .  " << std::endl;
                     stop();
@@ -206,7 +206,7 @@ private:
         if (stopped_)
             return;
 
-        std::cout<<"MESSAGGIO: "<<data<<std::endl;
+        //std::cout<<"MESSAGGIO: "<<data<<std::endl;
         // Start an asynchronous operation to send a heartbeat message.
         boost::asio::async_write(socket_, boost::asio::buffer(data),
                                  boost::bind(&tcp_client::handle_write_data, this, _1));
@@ -277,15 +277,15 @@ private:
 
     std::vector<boost::property_tree::ptree> send_file(std::string path_file, int bytes_to_transfer, std::vector<boost::property_tree::ptree> file_blocks, int offset){
 
-        std::cout<<"LEGGO DAL FILE PARTENDO DALL'INDICE "<<0<<" MANCANO DA LEGGERE " << bytes_to_transfer << " bytes" <<std::endl;
+        //std::cout<<"LEGGO DAL FILE PARTENDO DALL'INDICE "<<0<<" MANCANO DA LEGGERE " << bytes_to_transfer << " bytes" <<std::endl;
         std::ifstream input(path_file, std::ios::in | std::ios::binary);
         input.seekg (offset);
 
 
         boost::property_tree::ptree file_asked;
-        int size = 1024;
-        if(bytes_to_transfer >= 1024){
-            bytes_to_transfer -= 1024;
+        int size = 30720;
+        if(bytes_to_transfer >= 30720){
+            bytes_to_transfer -= 30720;
         } else {
             if(bytes_to_transfer >= 0) {
                 size = bytes_to_transfer;
@@ -311,7 +311,7 @@ private:
         file_asked.put("data", std::string(buffer_hex.str()));
 
         file_blocks.push_back(file_asked);
-        file_blocks = send_file(path_file, bytes_to_transfer, file_blocks, offset + 1024);
+        file_blocks = send_file(path_file, bytes_to_transfer, file_blocks, offset + 30720);
         return file_blocks;
     }
 

@@ -44,7 +44,7 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
             std::ostringstream JSON_string;
             write_json(JSON_string, JSON);
             std::string data = JSON_string.str() + "/";
-            std::cout<<"MESSAGGIO CHE STO PER INVIARE: "<<data<<std::endl;
+            //std::cout<<"MESSAGGIO CHE STO PER INVIARE: "<<data<<std::endl;
             // Start an asynchronous operation to send a heartbeat message.
             boost::asio::async_write(socket_, boost::asio::buffer(data),
                                      boost::bind(&tcp_connection::handle_write_data,
@@ -85,7 +85,7 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
                 // Empty messages are heartbeats and so ignored.
                 if (!line.empty())
                 {
-                    std::cout<<"MESSAGGIO RICEVUTO : "<<line<<std::endl;
+                    //std::cout<<"MESSAGGIO RICEVUTO : "<<line<<std::endl;
                     std::istringstream ss(line);
                     read_json(ss, JSON_client);
 
@@ -178,9 +178,9 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
 
 
             boost::property_tree::ptree file_asked;
-            int size = 1024;
-            if(bytes_to_transfer >= 1024){
-                bytes_to_transfer -= 1024;
+            int size = 30720;
+            if(bytes_to_transfer >= 30720){
+                bytes_to_transfer -= 30720;
             } else {
                 if(bytes_to_transfer >= 0) {
                     size = bytes_to_transfer;
@@ -206,7 +206,7 @@ class tcp_connection: public boost::enable_shared_from_this<tcp_connection> {
             file_asked.put("data", std::string(buffer_hex.str()));
 
             file_blocks.push_back(file_asked);
-            file_blocks = send_file(path_file, bytes_to_transfer, file_blocks, offset + 1024);
+            file_blocks = send_file(path_file, bytes_to_transfer, file_blocks, offset + 30720);
             return file_blocks;
         }
 
