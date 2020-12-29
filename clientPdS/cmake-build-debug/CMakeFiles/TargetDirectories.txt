@@ -1,3 +1,3 @@
-/home/mik/CLionProjects/pdsProject/clientPdS/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/home/mik/CLionProjects/pdsProject/clientPdS/cmake-build-debug/CMakeFiles/edit_cache.dir
-/home/mik/CLionProjects/pdsProject/clientPdS/cmake-build-debug/CMakeFiles/clientPdS.dir
+/home/mario/Scrivania/pdsProj/clientPdS/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/mario/Scrivania/pdsProj/clientPdS/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/mario/Scrivania/pdsProj/clientPdS/cmake-build-debug/CMakeFiles/clientPdS.dir

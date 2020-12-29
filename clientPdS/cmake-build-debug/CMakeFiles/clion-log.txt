@@ -1,4 +1,4 @@
-/snap/clion/137/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /home/mik/CLionProjects/pdsProject/clientPdS
+/home/mario/Scaricati/CLion-2020.2.4/clion-2020.2.4/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /home/mario/Scrivania/pdsProj/clientPdS
 -- Configuring done
 -- Generating done
--- Build files have been written to: /home/mik/CLionProjects/pdsProject/clientPdS/cmake-build-debug
+-- Build files have been written to: /home/mario/Scrivania/pdsProj/clientPdS/cmake-build-debug

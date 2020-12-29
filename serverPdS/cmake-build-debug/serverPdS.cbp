@@ -8,38 +8,38 @@
 		<Option virtualFolders="CMake Files\;"/>
 		<Build>
 			<Target title="all">
-				<Option working_dir="/home/mik/CLionProjects/pdsProject/serverPdS/cmake-build-debug"/>
+				<Option working_dir="/home/mario/Scrivania/pdsProj/serverPdS/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/home/mik/CLionProjects/pdsProject/serverPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
-					<CompileFile command="/usr/bin/make -f &quot;/home/mik/CLionProjects/pdsProject/serverPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/home/mik/CLionProjects/pdsProject/serverPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/home/mik/CLionProjects/pdsProject/serverPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j2 -f &quot;/home/mario/Scrivania/pdsProj/serverPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j2 -f &quot;/home/mario/Scrivania/pdsProj/serverPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j2 -f &quot;/home/mario/Scrivania/pdsProj/serverPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j2 -f &quot;/home/mario/Scrivania/pdsProj/serverPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="edit_cache">
-				<Option working_dir="/home/mik/CLionProjects/pdsProject/serverPdS/cmake-build-debug"/>
+				<Option working_dir="/home/mario/Scrivania/pdsProj/serverPdS/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/home/mik/CLionProjects/pdsProject/serverPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
-					<CompileFile command="/usr/bin/make -f &quot;/home/mik/CLionProjects/pdsProject/serverPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/home/mik/CLionProjects/pdsProject/serverPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/home/mik/CLionProjects/pdsProject/serverPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j2 -f &quot;/home/mario/Scrivania/pdsProj/serverPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j2 -f &quot;/home/mario/Scrivania/pdsProj/serverPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j2 -f &quot;/home/mario/Scrivania/pdsProj/serverPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j2 -f &quot;/home/mario/Scrivania/pdsProj/serverPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="rebuild_cache">
-				<Option working_dir="/home/mik/CLionProjects/pdsProject/serverPdS/cmake-build-debug"/>
+				<Option working_dir="/home/mario/Scrivania/pdsProj/serverPdS/cmake-build-debug"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/home/mik/CLionProjects/pdsProject/serverPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
-					<CompileFile command="/usr/bin/make -f &quot;/home/mik/CLionProjects/pdsProject/serverPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/home/mik/CLionProjects/pdsProject/serverPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/home/mik/CLionProjects/pdsProject/serverPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j2 -f &quot;/home/mario/Scrivania/pdsProj/serverPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j2 -f &quot;/home/mario/Scrivania/pdsProj/serverPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j2 -f &quot;/home/mario/Scrivania/pdsProj/serverPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j2 -f &quot;/home/mario/Scrivania/pdsProj/serverPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="serverPdS">
-				<Option output="/home/mik/CLionProjects/pdsProject/serverPdS/cmake-build-debug/serverPdS" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/mik/CLionProjects/pdsProject/serverPdS/cmake-build-debug"/>
+				<Option output="/home/mario/Scrivania/pdsProj/serverPdS/cmake-build-debug/serverPdS" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/mario/Scrivania/pdsProj/serverPdS/cmake-build-debug"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
 				<Option compiler="gcc"/>
@@ -53,15 +53,15 @@
 					<Add directory="/usr/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/home/mik/CLionProjects/pdsProject/serverPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 serverPdS"/>
-					<CompileFile command="/usr/bin/make -f &quot;/home/mik/CLionProjects/pdsProject/serverPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/home/mik/CLionProjects/pdsProject/serverPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/home/mik/CLionProjects/pdsProject/serverPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j2 -f &quot;/home/mario/Scrivania/pdsProj/serverPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 serverPdS"/>
+					<CompileFile command="/usr/bin/make -j2 -f &quot;/home/mario/Scrivania/pdsProj/serverPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j2 -f &quot;/home/mario/Scrivania/pdsProj/serverPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j2 -f &quot;/home/mario/Scrivania/pdsProj/serverPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 			<Target title="serverPdS/fast">
-				<Option output="/home/mik/CLionProjects/pdsProject/serverPdS/cmake-build-debug/serverPdS" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/mik/CLionProjects/pdsProject/serverPdS/cmake-build-debug"/>
+				<Option output="/home/mario/Scrivania/pdsProj/serverPdS/cmake-build-debug/serverPdS" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/mario/Scrivania/pdsProj/serverPdS/cmake-build-debug"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
 				<Option compiler="gcc"/>
@@ -75,17 +75,29 @@
 					<Add directory="/usr/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/home/mik/CLionProjects/pdsProject/serverPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 serverPdS/fast"/>
-					<CompileFile command="/usr/bin/make -f &quot;/home/mik/CLionProjects/pdsProject/serverPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/home/mik/CLionProjects/pdsProject/serverPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/home/mik/CLionProjects/pdsProject/serverPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<Build command="/usr/bin/make -j2 -f &quot;/home/mario/Scrivania/pdsProj/serverPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 serverPdS/fast"/>
+					<CompileFile command="/usr/bin/make -j2 -f &quot;/home/mario/Scrivania/pdsProj/serverPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j2 -f &quot;/home/mario/Scrivania/pdsProj/serverPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j2 -f &quot;/home/mario/Scrivania/pdsProj/serverPdS/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="/home/mik/CLionProjects/pdsProject/serverPdS/main.cpp">
+		<Unit filename="/home/mario/Scrivania/pdsProj/serverPdS/main.cpp">
 			<Option target="serverPdS"/>
 		</Unit>
-		<Unit filename="/home/mik/CLionProjects/pdsProject/serverPdS/CMakeLists.txt">
+		<Unit filename="/home/mario/Scrivania/pdsProj/serverPdS/tcp_connection.cpp">
+			<Option target="serverPdS"/>
+		</Unit>
+		<Unit filename="/home/mario/Scrivania/pdsProj/serverPdS/tcp_connection.h">
+			<Option target="serverPdS"/>
+		</Unit>
+		<Unit filename="/home/mario/Scrivania/pdsProj/serverPdS/tcp_server.cpp">
+			<Option target="serverPdS"/>
+		</Unit>
+		<Unit filename="/home/mario/Scrivania/pdsProj/serverPdS/tcp_server.h">
+			<Option target="serverPdS"/>
+		</Unit>
+		<Unit filename="/home/mario/Scrivania/pdsProj/serverPdS/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
 		</Unit>
 	</Project>

@@ -64,7 +64,6 @@ std::vector<boost::property_tree::ptree> filesystem_utility::add_to(const boost:
         std::cout<<"Second: "<< tree.second.data() <<std::endl;
 
         if (tree.second.data() == "") {   //DIRECTORY
-            std::cout<<"SONO NELLA DIRECTORY"<<std::endl;
 
             if (JSON_source.count(tree.first) == 0) {
                 files_to_ask = create_file_system(
@@ -79,7 +78,6 @@ std::vector<boost::property_tree::ptree> filesystem_utility::add_to(const boost:
                                       path_source + "/" + tree.first, path_destination + "/" + tree.first, files_to_ask);
             }
         } else {
-            std::cout<<"SONO NEL FILE"<<std::endl;
 
             if (JSON_source.count(tree.first) == 0) {
                 boost::property_tree::ptree file_JSON;
@@ -88,7 +86,7 @@ std::vector<boost::property_tree::ptree> filesystem_utility::add_to(const boost:
                 JSON_source.put(boost::property_tree::ptree::path_type(tree.first, '/'), tree.second.data());
             } else if (JSON_source.get<std::string>(boost::property_tree::ptree::path_type(tree.first, '/')) !=
                        tree.second.data()) {
-                //DELETE DEL FILE
+
 
                 boost::filesystem::remove(boost::filesystem::path(path_source + "/" + tree.first));
                 boost::property_tree::ptree file_JSON;
@@ -105,22 +103,19 @@ std::vector<boost::property_tree::ptree> filesystem_utility::add_to(const boost:
 void filesystem_utility::delete_from(const boost::property_tree::ptree &JSON_destination, boost::property_tree::ptree &JSON_source,
                                      const std::string &path_source) {
 
-    std::cout<<"SONO NELLA DELETE FROM"<<std::endl;
 
     for (auto tree : JSON_source) {
 
         if (tree.second.data() == "") {   //DIRECTORY
             if (JSON_destination.count(tree.first) == 0) {
                 boost::filesystem::remove_all(boost::filesystem::path(path_source + "/" + tree.first));
-                std::cout<<"Rimuovo: " << path_source + "/" + tree.first<<std::endl;
+
 
                 JSON_source.erase(tree.first);
-                std::cout<<"JSON check start: " <<std::endl;
                 JSON_utility::print_JSON(JSON_source);
-                std::cout<<"JSON check stop: " <<std::endl;
 
             } else {
-                //CARTELLA ESISTE SUL CLIENT
+
                 delete_from(JSON_destination.get_child(boost::property_tree::ptree::path_type(tree.first, '/')),
                             JSON_source.get_child(boost::property_tree::ptree::path_type(tree.first, '/')),
                             path_source + "/" + tree.first);
@@ -128,12 +123,9 @@ void filesystem_utility::delete_from(const boost::property_tree::ptree &JSON_des
         } else {
             if (JSON_destination.count(tree.first) == 0) {
                 boost::filesystem::remove(boost::filesystem::path(path_source + "/" + tree.first));
-                std::cout<<"Rimuovo: " << path_source + "/" + tree.first<<std::endl;
 
                 JSON_source.erase(tree.first);
-                std::cout<<"JSON check start: " <<std::endl;
                 JSON_utility::print_JSON(JSON_source);
-                std::cout<<"JSON check stop: " <<std::endl;
             }
         }
     }
