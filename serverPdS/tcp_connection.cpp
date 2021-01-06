@@ -236,12 +236,12 @@ void tcp_connection::default_fun(){
         JSON_server.erase("data");
         if(!JSON_client.get_child("data").empty() && check_validity(JSON_client.get_child("data"))){
 
-            std::cout<<"Cartelle già allineate..."<<std::endl;
+            std::cout<<"Cartelle già allineate"<<std::endl;
             JSON_client.put("connection", "default_directory_valid");
             write_data(JSON_client);
 
         } else {
-            std::cout<<"Cartelle esistente ma non allineate..."<<std::endl;
+            std::cout<<"Cartelle esistente ma non allineate"<<std::endl;
             boost::property_tree::write_json(std::cout, JSON_client.get_child("data"));
 
             boost::property_tree::write_json(std::cout, JSON_server.get_child("data"));
@@ -254,18 +254,17 @@ void tcp_connection::default_fun(){
                 boost::property_tree::write_json(std::cout, files[0]);
                 write_data(files[0]);
             } else {
-                std::cout<<"CARTELLA AGGIORNATA CON SUCCESSO"<<std::endl;
+                std::cout<<"Cartella aggiornata con successo"<<std::endl;
                 JSON_client.put("connection", "default_directory_valid");
                 write_data(JSON_client);
                 //stop();
             }
-            //allineare il server al client
         }
     } else {
         JSON_server = JSON_client;
         JSON_server.erase("data");
         JSON_server.put("data", "");
-        std::cout<<"Cartelle non esistente..."<<std::endl;
+        std::cout<<"Cartelle non esistente"<<std::endl;
         boost::property_tree::write_json(std::cout, JSON_client);
 
         boost::property_tree::write_json(std::cout, JSON_server);
@@ -282,7 +281,7 @@ void tcp_connection::default_fun(){
             boost::property_tree::write_json(std::cout, files[0]);
             write_data(files[0]);
         } else {
-            std::cout<<"CARTELLA AGGIORNATA CON SUCCESSO"<<std::endl;
+            std::cout<<"Cartella aggiornata con successo"<<std::endl;
             JSON_client.put("connection", "default_directory_valid");
             write_data(JSON_client);
             //stop();

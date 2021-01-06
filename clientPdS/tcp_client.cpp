@@ -357,7 +357,7 @@ void tcp_client::default_fun(boost::property_tree::ptree& JSON){
         file_received_fun(JSON);
     }
     else if(JSON.get("connection", "connection_error") == "default_directory_valid") {
-        std::cout<<"Allineati server e client!\nStarting watcher"<<std::endl;
+        std::cout<<"Allineati server e client!\nStarting watcher\n"<<std::endl;
         start_watcher();
     }
 }
