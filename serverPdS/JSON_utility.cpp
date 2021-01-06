@@ -4,7 +4,14 @@
 #include "JSON_utility.h"
 
 void JSON_utility::print_JSON(const boost::property_tree::ptree& JSON){
-    boost::property_tree::write_json(std::cout, JSON);
+    boost::property_tree::ptree JSON2 = JSON;
+
+    if(JSON.get("connection", "")=="sending_file"){
+        JSON2.put("block_info.data", "HASH DEL FILE!!!");
+    }
+
+    boost::property_tree::write_json(std::cout, JSON2);
+    std::cout<<""<<std::endl;
 }
 
 boost::property_tree::ptree JSON_utility::create_json(const std::string& username_, std::string password_, const std::string& command_, const boost::filesystem::path& path_){
@@ -53,9 +60,7 @@ boost::property_tree::ptree JSON_utility::create_data_json(const boost::filesyst
 std::vector<boost::property_tree::ptree> JSON_utility::JSON_differences(const boost::property_tree::ptree& JSON_destination, boost::property_tree::ptree JSON_source,
                                                                         const std::string& username_, const boost::filesystem::path& path_, std::vector<boost::property_tree::ptree> files_to_ask){
     filesystem_utility::delete_from(JSON_destination, JSON_source, path_.string());
-    std::cout <<"--------------------------"<<std::endl;
     boost::property_tree::write_json(std::cout, JSON_source);
-    std::cout <<"--------------------------"<<std::endl;
 
     return filesystem_utility::add_to(JSON_destination, JSON_source, path_.string(), path_.filename().string(), files_to_ask);
 }

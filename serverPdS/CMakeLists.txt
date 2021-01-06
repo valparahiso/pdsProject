@@ -3,4 +3,4 @@ project(serverPdS)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(serverPdS main.cpp)
+add_executable(serverPdS main.cpp tcp_connection.cpp tcp_server.cpp)

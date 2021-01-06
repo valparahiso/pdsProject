@@ -4,15 +4,15 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/mik/CLionProjects/pdsProject/clientPdS/JSON_utility.cpp" "/home/mik/CLionProjects/pdsProject/clientPdS/cmake-build-debug/CMakeFiles/clientPdS.dir/JSON_utility.cpp.o"
-  "/home/mik/CLionProjects/pdsProject/clientPdS/directory_exception.cpp" "/home/mik/CLionProjects/pdsProject/clientPdS/cmake-build-debug/CMakeFiles/clientPdS.dir/directory_exception.cpp.o"
-  "/home/mik/CLionProjects/pdsProject/clientPdS/file_watcher.cpp" "/home/mik/CLionProjects/pdsProject/clientPdS/cmake-build-debug/CMakeFiles/clientPdS.dir/file_watcher.cpp.o"
-  "/home/mik/CLionProjects/pdsProject/clientPdS/filesystem_utility.cpp" "/home/mik/CLionProjects/pdsProject/clientPdS/cmake-build-debug/CMakeFiles/clientPdS.dir/filesystem_utility.cpp.o"
-  "/home/mik/CLionProjects/pdsProject/clientPdS/hash_utility.cpp" "/home/mik/CLionProjects/pdsProject/clientPdS/cmake-build-debug/CMakeFiles/clientPdS.dir/hash_utility.cpp.o"
-  "/home/mik/CLionProjects/pdsProject/clientPdS/main.cpp" "/home/mik/CLionProjects/pdsProject/clientPdS/cmake-build-debug/CMakeFiles/clientPdS.dir/main.cpp.o"
-  "/home/mik/CLionProjects/pdsProject/clientPdS/parameters_exception.cpp" "/home/mik/CLionProjects/pdsProject/clientPdS/cmake-build-debug/CMakeFiles/clientPdS.dir/parameters_exception.cpp.o"
-  "/home/mik/CLionProjects/pdsProject/clientPdS/tcp_client.cpp" "/home/mik/CLionProjects/pdsProject/clientPdS/cmake-build-debug/CMakeFiles/clientPdS.dir/tcp_client.cpp.o"
-  "/home/mik/CLionProjects/pdsProject/clientPdS/user.cpp" "/home/mik/CLionProjects/pdsProject/clientPdS/cmake-build-debug/CMakeFiles/clientPdS.dir/user.cpp.o"
+  "/home/mario/Scrivania/pdsProj/clientPdS/JSON_utility.cpp" "/home/mario/Scrivania/pdsProj/clientPdS/cmake-build-debug/CMakeFiles/clientPdS.dir/JSON_utility.cpp.o"
+  "/home/mario/Scrivania/pdsProj/clientPdS/directory_exception.cpp" "/home/mario/Scrivania/pdsProj/clientPdS/cmake-build-debug/CMakeFiles/clientPdS.dir/directory_exception.cpp.o"
+  "/home/mario/Scrivania/pdsProj/clientPdS/file_watcher.cpp" "/home/mario/Scrivania/pdsProj/clientPdS/cmake-build-debug/CMakeFiles/clientPdS.dir/file_watcher.cpp.o"
+  "/home/mario/Scrivania/pdsProj/clientPdS/filesystem_utility.cpp" "/home/mario/Scrivania/pdsProj/clientPdS/cmake-build-debug/CMakeFiles/clientPdS.dir/filesystem_utility.cpp.o"
+  "/home/mario/Scrivania/pdsProj/clientPdS/hash_utility.cpp" "/home/mario/Scrivania/pdsProj/clientPdS/cmake-build-debug/CMakeFiles/clientPdS.dir/hash_utility.cpp.o"
+  "/home/mario/Scrivania/pdsProj/clientPdS/main.cpp" "/home/mario/Scrivania/pdsProj/clientPdS/cmake-build-debug/CMakeFiles/clientPdS.dir/main.cpp.o"
+  "/home/mario/Scrivania/pdsProj/clientPdS/parameters_exception.cpp" "/home/mario/Scrivania/pdsProj/clientPdS/cmake-build-debug/CMakeFiles/clientPdS.dir/parameters_exception.cpp.o"
+  "/home/mario/Scrivania/pdsProj/clientPdS/tcp_client.cpp" "/home/mario/Scrivania/pdsProj/clientPdS/cmake-build-debug/CMakeFiles/clientPdS.dir/tcp_client.cpp.o"
+  "/home/mario/Scrivania/pdsProj/clientPdS/user.cpp" "/home/mario/Scrivania/pdsProj/clientPdS/cmake-build-debug/CMakeFiles/clientPdS.dir/user.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 

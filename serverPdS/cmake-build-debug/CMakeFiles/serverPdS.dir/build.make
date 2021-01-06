@@ -54,19 +54,19 @@ cmake_force:
 SHELL = /bin/sh
 
 # The CMake executable.
-CMAKE_COMMAND = /snap/clion/137/bin/cmake/linux/bin/cmake
+CMAKE_COMMAND = /home/mario/Scaricati/CLion-2020.2.4/clion-2020.2.4/bin/cmake/linux/bin/cmake
 
 # The command to remove a file.
-RM = /snap/clion/137/bin/cmake/linux/bin/cmake -E rm -f
+RM = /home/mario/Scaricati/CLion-2020.2.4/clion-2020.2.4/bin/cmake/linux/bin/cmake -E rm -f
 
 # Escaping for special characters.
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/mik/CLionProjects/pdsProject/serverPdS
+CMAKE_SOURCE_DIR = /home/mario/Scrivania/pdsProj/serverPdS
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/mik/CLionProjects/pdsProject/serverPdS/cmake-build-debug
+CMAKE_BINARY_DIR = /home/mario/Scrivania/pdsProj/serverPdS/cmake-build-debug
 
 # Include any dependencies generated for this target.
 include CMakeFiles/serverPdS.dir/depend.make
@@ -79,28 +79,58 @@ include CMakeFiles/serverPdS.dir/flags.make
 
 CMakeFiles/serverPdS.dir/main.cpp.o: CMakeFiles/serverPdS.dir/flags.make
 CMakeFiles/serverPdS.dir/main.cpp.o: ../main.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mik/CLionProjects/pdsProject/serverPdS/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/serverPdS.dir/main.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/serverPdS.dir/main.cpp.o -c /home/mik/CLionProjects/pdsProject/serverPdS/main.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mario/Scrivania/pdsProj/serverPdS/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/serverPdS.dir/main.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/serverPdS.dir/main.cpp.o -c /home/mario/Scrivania/pdsProj/serverPdS/main.cpp
 
 CMakeFiles/serverPdS.dir/main.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/serverPdS.dir/main.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mik/CLionProjects/pdsProject/serverPdS/main.cpp > CMakeFiles/serverPdS.dir/main.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mario/Scrivania/pdsProj/serverPdS/main.cpp > CMakeFiles/serverPdS.dir/main.cpp.i
 
 CMakeFiles/serverPdS.dir/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/serverPdS.dir/main.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mik/CLionProjects/pdsProject/serverPdS/main.cpp -o CMakeFiles/serverPdS.dir/main.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mario/Scrivania/pdsProj/serverPdS/main.cpp -o CMakeFiles/serverPdS.dir/main.cpp.s
+
+CMakeFiles/serverPdS.dir/tcp_connection.cpp.o: CMakeFiles/serverPdS.dir/flags.make
+CMakeFiles/serverPdS.dir/tcp_connection.cpp.o: ../tcp_connection.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mario/Scrivania/pdsProj/serverPdS/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/serverPdS.dir/tcp_connection.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/serverPdS.dir/tcp_connection.cpp.o -c /home/mario/Scrivania/pdsProj/serverPdS/tcp_connection.cpp
+
+CMakeFiles/serverPdS.dir/tcp_connection.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/serverPdS.dir/tcp_connection.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mario/Scrivania/pdsProj/serverPdS/tcp_connection.cpp > CMakeFiles/serverPdS.dir/tcp_connection.cpp.i
+
+CMakeFiles/serverPdS.dir/tcp_connection.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/serverPdS.dir/tcp_connection.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mario/Scrivania/pdsProj/serverPdS/tcp_connection.cpp -o CMakeFiles/serverPdS.dir/tcp_connection.cpp.s
+
+CMakeFiles/serverPdS.dir/tcp_server.cpp.o: CMakeFiles/serverPdS.dir/flags.make
+CMakeFiles/serverPdS.dir/tcp_server.cpp.o: ../tcp_server.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/mario/Scrivania/pdsProj/serverPdS/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/serverPdS.dir/tcp_server.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/serverPdS.dir/tcp_server.cpp.o -c /home/mario/Scrivania/pdsProj/serverPdS/tcp_server.cpp
+
+CMakeFiles/serverPdS.dir/tcp_server.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/serverPdS.dir/tcp_server.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/mario/Scrivania/pdsProj/serverPdS/tcp_server.cpp > CMakeFiles/serverPdS.dir/tcp_server.cpp.i
+
+CMakeFiles/serverPdS.dir/tcp_server.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/serverPdS.dir/tcp_server.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/mario/Scrivania/pdsProj/serverPdS/tcp_server.cpp -o CMakeFiles/serverPdS.dir/tcp_server.cpp.s
 
 # Object files for target serverPdS
 serverPdS_OBJECTS = \
-"CMakeFiles/serverPdS.dir/main.cpp.o"
+"CMakeFiles/serverPdS.dir/main.cpp.o" \
+"CMakeFiles/serverPdS.dir/tcp_connection.cpp.o" \
+"CMakeFiles/serverPdS.dir/tcp_server.cpp.o"
 
 # External object files for target serverPdS
 serverPdS_EXTERNAL_OBJECTS =
 
 serverPdS: CMakeFiles/serverPdS.dir/main.cpp.o
+serverPdS: CMakeFiles/serverPdS.dir/tcp_connection.cpp.o
+serverPdS: CMakeFiles/serverPdS.dir/tcp_server.cpp.o
 serverPdS: CMakeFiles/serverPdS.dir/build.make
 serverPdS: CMakeFiles/serverPdS.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/mik/CLionProjects/pdsProject/serverPdS/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable serverPdS"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/mario/Scrivania/pdsProj/serverPdS/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX executable serverPdS"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/serverPdS.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -113,6 +143,6 @@ CMakeFiles/serverPdS.dir/clean:
 .PHONY : CMakeFiles/serverPdS.dir/clean
 
 CMakeFiles/serverPdS.dir/depend:
-	cd /home/mik/CLionProjects/pdsProject/serverPdS/cmake-build-debug && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/mik/CLionProjects/pdsProject/serverPdS /home/mik/CLionProjects/pdsProject/serverPdS /home/mik/CLionProjects/pdsProject/serverPdS/cmake-build-debug /home/mik/CLionProjects/pdsProject/serverPdS/cmake-build-debug /home/mik/CLionProjects/pdsProject/serverPdS/cmake-build-debug/CMakeFiles/serverPdS.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/mario/Scrivania/pdsProj/serverPdS/cmake-build-debug && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/mario/Scrivania/pdsProj/serverPdS /home/mario/Scrivania/pdsProj/serverPdS /home/mario/Scrivania/pdsProj/serverPdS/cmake-build-debug /home/mario/Scrivania/pdsProj/serverPdS/cmake-build-debug /home/mario/Scrivania/pdsProj/serverPdS/cmake-build-debug/CMakeFiles/serverPdS.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/serverPdS.dir/depend
 

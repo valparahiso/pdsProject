@@ -4,7 +4,9 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/mik/CLionProjects/pdsProject/serverPdS/main.cpp" "/home/mik/CLionProjects/pdsProject/serverPdS/cmake-build-debug/CMakeFiles/serverPdS.dir/main.cpp.o"
+  "/home/mario/Scrivania/pdsProj/serverPdS/main.cpp" "/home/mario/Scrivania/pdsProj/serverPdS/cmake-build-debug/CMakeFiles/serverPdS.dir/main.cpp.o"
+  "/home/mario/Scrivania/pdsProj/serverPdS/tcp_connection.cpp" "/home/mario/Scrivania/pdsProj/serverPdS/cmake-build-debug/CMakeFiles/serverPdS.dir/tcp_connection.cpp.o"
+  "/home/mario/Scrivania/pdsProj/serverPdS/tcp_server.cpp" "/home/mario/Scrivania/pdsProj/serverPdS/cmake-build-debug/CMakeFiles/serverPdS.dir/tcp_server.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 

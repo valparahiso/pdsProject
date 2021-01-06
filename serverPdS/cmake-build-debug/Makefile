@@ -59,19 +59,19 @@ cmake_force:
 SHELL = /bin/sh
 
 # The CMake executable.
-CMAKE_COMMAND = /snap/clion/137/bin/cmake/linux/bin/cmake
+CMAKE_COMMAND = /home/mario/Scaricati/CLion-2020.2.4/clion-2020.2.4/bin/cmake/linux/bin/cmake
 
 # The command to remove a file.
-RM = /snap/clion/137/bin/cmake/linux/bin/cmake -E rm -f
+RM = /home/mario/Scaricati/CLion-2020.2.4/clion-2020.2.4/bin/cmake/linux/bin/cmake -E rm -f
 
 # Escaping for special characters.
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/mik/CLionProjects/pdsProject/serverPdS
+CMAKE_SOURCE_DIR = /home/mario/Scrivania/pdsProj/serverPdS
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/mik/CLionProjects/pdsProject/serverPdS/cmake-build-debug
+CMAKE_BINARY_DIR = /home/mario/Scrivania/pdsProj/serverPdS/cmake-build-debug
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -79,7 +79,7 @@ CMAKE_BINARY_DIR = /home/mik/CLionProjects/pdsProject/serverPdS/cmake-build-debu
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
-	/snap/clion/137/bin/cmake/linux/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
+	/home/mario/Scaricati/CLion-2020.2.4/clion-2020.2.4/bin/cmake/linux/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
 .PHONY : edit_cache
 
 # Special rule for the target edit_cache
@@ -90,7 +90,7 @@ edit_cache/fast: edit_cache
 # Special rule for the target rebuild_cache
 rebuild_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
-	/snap/clion/137/bin/cmake/linux/bin/cmake --regenerate-during-build -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+	/home/mario/Scaricati/CLion-2020.2.4/clion-2020.2.4/bin/cmake/linux/bin/cmake --regenerate-during-build -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
 .PHONY : rebuild_cache
 
 # Special rule for the target rebuild_cache
@@ -100,9 +100,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/mik/CLionProjects/pdsProject/serverPdS/cmake-build-debug/CMakeFiles /home/mik/CLionProjects/pdsProject/serverPdS/cmake-build-debug/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/mario/Scrivania/pdsProj/serverPdS/cmake-build-debug/CMakeFiles /home/mario/Scrivania/pdsProj/serverPdS/cmake-build-debug/CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/mik/CLionProjects/pdsProject/serverPdS/cmake-build-debug/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/mario/Scrivania/pdsProj/serverPdS/cmake-build-debug/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -170,6 +170,60 @@ main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/serverPdS.dir/build.make CMakeFiles/serverPdS.dir/main.cpp.s
 .PHONY : main.cpp.s
 
+tcp_connection.o: tcp_connection.cpp.o
+
+.PHONY : tcp_connection.o
+
+# target to build an object file
+tcp_connection.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/serverPdS.dir/build.make CMakeFiles/serverPdS.dir/tcp_connection.cpp.o
+.PHONY : tcp_connection.cpp.o
+
+tcp_connection.i: tcp_connection.cpp.i
+
+.PHONY : tcp_connection.i
+
+# target to preprocess a source file
+tcp_connection.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/serverPdS.dir/build.make CMakeFiles/serverPdS.dir/tcp_connection.cpp.i
+.PHONY : tcp_connection.cpp.i
+
+tcp_connection.s: tcp_connection.cpp.s
+
+.PHONY : tcp_connection.s
+
+# target to generate assembly for a file
+tcp_connection.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/serverPdS.dir/build.make CMakeFiles/serverPdS.dir/tcp_connection.cpp.s
+.PHONY : tcp_connection.cpp.s
+
+tcp_server.o: tcp_server.cpp.o
+
+.PHONY : tcp_server.o
+
+# target to build an object file
+tcp_server.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/serverPdS.dir/build.make CMakeFiles/serverPdS.dir/tcp_server.cpp.o
+.PHONY : tcp_server.cpp.o
+
+tcp_server.i: tcp_server.cpp.i
+
+.PHONY : tcp_server.i
+
+# target to preprocess a source file
+tcp_server.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/serverPdS.dir/build.make CMakeFiles/serverPdS.dir/tcp_server.cpp.i
+.PHONY : tcp_server.cpp.i
+
+tcp_server.s: tcp_server.cpp.s
+
+.PHONY : tcp_server.s
+
+# target to generate assembly for a file
+tcp_server.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/serverPdS.dir/build.make CMakeFiles/serverPdS.dir/tcp_server.cpp.s
+.PHONY : tcp_server.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -182,6 +236,12 @@ help:
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
+	@echo "... tcp_connection.o"
+	@echo "... tcp_connection.i"
+	@echo "... tcp_connection.s"
+	@echo "... tcp_server.o"
+	@echo "... tcp_server.i"
+	@echo "... tcp_server.s"
 .PHONY : help
 
 

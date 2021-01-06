@@ -13,8 +13,6 @@ bool db_utility::login_db(std::string username, std::string password) {
 
     if (rc) {
         std::cout << "- Can't open database: " << sqlite3_errmsg(db) << std::endl;
-    } else {
-        std::cout << "- Opening database . . . .     ";
     }
 
     std::string query_string =
@@ -36,7 +34,6 @@ bool db_utility::login_db(std::string username, std::string password) {
 
 int db_utility::check_login(void *NotUsed, int argc, char **argv, char **azColName) {
     if (std::string(argv[0]) == "1") {
-        std::cout << "Utente presente nel DB . . . ." << std::endl;
         return 0;
     } else {
         std::cout << "Utente NON presente nel DB . . . ." << std::endl;
