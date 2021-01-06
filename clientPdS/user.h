@@ -13,14 +13,9 @@
 
 class user {
 public:
-    user(std::string directory, std::string command) : directory(directory), command(command){
-        check_command();
-    }
+    user(std::string directory, std::string command);
 
-    void connection(){
-        authentication();
-        start_communication();
-    }
+    void connection();
 
 private:
     std::string username;
@@ -28,51 +23,14 @@ private:
     std::string command;
     std::string directory;
 
-    void authentication(){
-        std::cout << "Please, enter your username: ";
-        std::getline (std::cin,this->username);
+    void authentication();
 
-        std::cout << "Please, enter your password: ";
-        std::getline (std::cin,this->password);
-    }
+    void check_command();
 
-    void check_command(){
-        if(command=="restore"){
-            return;
-        } else if(command=="check_validity" || command == "default"){
-            check_directory();
-            return;
-        }
-        std::cout<<"Comando errato."<<std::endl;
-        throw parameters_exception();
-    }
-
-    void check_directory(){
-        boost::filesystem::path path(directory);
-        std::cout<<"check: " << path << std::endl;
-        if(exists(path)){
-            if(is_directory(path)){
-                directory = boost::filesystem::absolute(boost::filesystem::canonical(path)).string();
-                std::cout<<"directory: " << directory << std::endl;
-
-                return;
-            }
-        }
-
-        throw directory_exception();
-    }
+    void check_directory();
 
 
-    void start_communication(){
-        boost::asio::io_context io_context;
-        tcp::resolver resolver(io_context);
-        tcp_client client = tcp_client(io_context, username, password, directory, command);
-
-        client.start(resolver.resolve("127.0.0.1", "8001"));
-        io_context.run();
-    }
+    void start_communication();
 
 };
-
-
 #endif //CLIENTPDS_USER_H

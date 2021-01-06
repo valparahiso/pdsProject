@@ -34,7 +34,7 @@ void tcp_client::start(tcp::resolver::results_type endpoints){
 }
 
 void tcp_client::stop(){
-    std::cout <<"CHIUSURA SOCKET... "<< std::endl;
+    std::cout <<"\nChiusura socket"<< std::endl;
     stopped_ = true;
     boost::system::error_code ignored_ec;
     socket_.close(ignored_ec);
@@ -44,7 +44,7 @@ void tcp_client::stop(){
 
 void tcp_client::start_connect(tcp::resolver::results_type::iterator endpoint_iter){
     if (endpoint_iter != endpoints_.end()){
-        std::cout << "Trying " << endpoint_iter->endpoint() << "...\n";
+        std::cout << "Trying " << endpoint_iter->endpoint() << "\n";
 
         // Set a deadline for the connect operatiod\nn.
         deadline_.expires_after(boost::asio::chrono::seconds(60));
@@ -100,19 +100,13 @@ void tcp_client::handle_connect(const boost::system::error_code& ec,tcp::resolve
     }
     // Otherwise we have successfully established a connection.
     else{
-        std::cout << "Connected to " << endpoint_iter->endpoint() << "\n";
+        std::cout << "Connected to " << endpoint_iter->endpoint() << "\n\n";
         JSON_client = JSON_utility::create_json(username_, password_, command_, path_);
         write_data(JSON_client);
     }
 }
 
 void tcp_client::read_data(){
-    std::cout<<"READING DATA"<<std::endl;
-
-    // Set a deadline for the read operation.
-    //deadline_.expires_after(boost::asio::chrono::seconds(100));
-
-    std::cout<<"******************** In read DATA"<<std::endl;
 
     // Start an asynchronous operation to read a newline-delimited message.
     boost::asio::async_read_until(socket_,
@@ -126,12 +120,9 @@ void tcp_client::handle_read_data(const boost::system::error_code& ec, std::size
     if (stopped_)
         return;
 
-    std::cout<<"EC: "<<ec<<std::endl;
 
 
     if (!ec){
-        std::cout<<"******************** In handle read DATA"<<std::endl;
-
         // Extract the newline-delimited message from the buffer.
         std::string line(input_buffer_.substr(0, n - 1));
         input_buffer_.erase(0, n);
@@ -144,7 +135,7 @@ void tcp_client::handle_read_data(const boost::system::error_code& ec, std::size
 
             //std::cout << "Received: " << line << "\n";
             if(JSON.get("connection", "connection_error") == "login_error"){
-                std::cout << "Autenticazione Fallita. Chiusura socket . . .  " << std::endl;
+                std::cout << "Autenticazione Fallita" << std::endl;
                 stop();
             } else if(command_ == "check_validity"){
                 check_validity_fun(JSON);
@@ -165,23 +156,19 @@ void tcp_client::handle_read_data(const boost::system::error_code& ec, std::size
 
 
 void tcp_client::write_data(boost::property_tree::ptree JSON){
-    std::cout<<"******************** In WRITE DATA"<<std::endl;
 
     std::ostringstream JSON_string;
     write_json(JSON_string, JSON);
     std::string data = JSON_string.str() + "/";
-    std::cout<<"SENDING DATA TO SERVER "<<std::endl;
     if (stopped_)
         return;
 
-    //std::cout<<"MESSAGGIO: "<<data<<std::endl;
     // Start an asynchronous operation to send a heartbeat message.
     boost::asio::async_write(socket_, boost::asio::buffer(data),
                              boost::bind(&tcp_client::handle_write_data, this, _1));
 }
 
 void tcp_client::handle_write_data(const boost::system::error_code& ec){
-    std::cout<<"******************** In handle WRITE DATA"<<std::endl;
 
     if (stopped_)
         return;
@@ -210,7 +197,7 @@ void tcp_client::check_deadline(){
     if (deadline_.expiry() <= steady_timer::clock_type::now()){
         // The deadline has passed. The socket is closed so that any outstanding
         // asynchronous operations are cancelled.
-        std::cout << "deadline_ " << "\n";
+
         //socket_.close();
 
         // There is no longer an active deadline. The expiry is set to the
@@ -230,7 +217,6 @@ std::vector<boost::property_tree::ptree> tcp_client::to_file_from_bytes(std::str
     int file_size = size.tellg();
     size.close();
     if(file_size == -1){
-        std::cout<<"FILE INESITENTE "<<std::endl;
         return file_blocks;
     }
 
@@ -240,7 +226,6 @@ std::vector<boost::property_tree::ptree> tcp_client::to_file_from_bytes(std::str
 
 std::vector<boost::property_tree::ptree> tcp_client::send_file(std::string path_file, int bytes_to_transfer, std::vector<boost::property_tree::ptree> file_blocks, int offset){
 
-    //std::cout<<"LEGGO DAL FILE PARTENDO DALL'INDICE "<<0<<" MANCANO DA LEGGERE " << bytes_to_transfer << " bytes" <<std::endl;
     std::ifstream input(path_file, std::ios::in | std::ios::binary);
     input.seekg (offset);
 
@@ -262,7 +247,6 @@ std::vector<boost::property_tree::ptree> tcp_client::send_file(std::string path_
 
 
     std::vector<unsigned char> buffer(size);
-    //std::cout<<"LEGGO DAL FILE PARTENDO DALL'INDICE "<<index<<" UNA SIZE DI " << buffer.size() << " bytes" <<std::endl;
     input.read((char*)&buffer[0], buffer.size());
 
     std::stringstream buffer_hex;
@@ -280,24 +264,24 @@ std::vector<boost::property_tree::ptree> tcp_client::send_file(std::string path_
 
 void tcp_client::check_validity_fun(boost::property_tree::ptree& JSON){
     if(JSON.get("connection", "connection_error") == "directory_error"){
-        std::cout << "Directory invalida. Directory NON presente sul server. Chiusura socket . . .  " << std::endl;
+        std::cout << "Directory invalida\nDirectory non presente sul server" << std::endl;
         stop();
     } else if(JSON.get("connection", "connection_error") == "directory_valid"){
-        std::cout << "Directory VALIDA. Client e server aggiornati. . . . Chiusura socket . . .  " << std::endl;
+        std::cout << "Directory valida\nClient e server aggiornati" << std::endl;
         stop();
     } else if(JSON.get("connection", "connection_error") == "directory_invalid"){
-        std::cout << "Directory INVALIDA. Client e server NON aggiornati. . . . Chiusura socket . . .  " << std::endl;
+        std::cout << "Directory invalida\nClient e server non aggiornati" << std::endl;
         stop();
     }
 }
 
 void tcp_client::restore_fun(boost::property_tree::ptree& JSON){
     if(JSON.get("connection", "connection_error") == "directory_error"){
-        std::cout << "Impossibile esguire il restore della directory. Directory NON presente sul server. Chiusura socket . . .  " << std::endl;
+        std::cout << "Impossibile esguire il restore della directory. Directory non presente sul server" << std::endl;
         stop();
     }
     else if(JSON.get("connection", "connection_error") == "directory_valid"){
-        std::cout << "Directory di client e server sono già aggiornate . . . . Chiusura socket . . .  " << std::endl;
+        std::cout << "Directory di client e server sono già aggiornate" << std::endl;
         stop();
     } else if(JSON.get("connection", "connection_error") == "empty_data"){
         empty_data_fun(JSON);
@@ -338,7 +322,7 @@ void tcp_client::sending_file_fun(boost::property_tree::ptree& JSON){
         int index_file = JSON.get<int>("index_file") +1;
         int num_files = JSON.get<int>("num_files");
         if(index_file == num_files){
-            std::cout<<"CARTELLA AGGIORNATA CON SUCCESSO. . . . Chiusura socket. . . ."<<std::endl;
+            std::cout<<"Cartella aggiornata con successo"<<std::endl;
             stop();
         } else{
             files[index_file].put("index_file", std::to_string(index_file));
@@ -360,7 +344,7 @@ void tcp_client::differences_fun(boost::property_tree::ptree& JSON){
         files[0].put("index_file", "0");
         write_data(files[0]);
     } else {
-        std::cout<<"CARTELLA AGGIORNATA CON SUCCESSO. . . . Chiusura socket. . . ."<<std::endl;
+        std::cout<<"Cartella aggiornata con successo"<<std::endl;
         stop();
     }
 }
@@ -373,7 +357,7 @@ void tcp_client::default_fun(boost::property_tree::ptree& JSON){
         file_received_fun(JSON);
     }
     else if(JSON.get("connection", "connection_error") == "default_directory_valid") {
-        std::cout<<"Allineati server e client!\nStarting watcher..."<<std::endl;
+        std::cout<<"Allineati server e client!\nStarting watcher"<<std::endl;
         start_watcher();
     }
 }
@@ -402,17 +386,16 @@ void tcp_client::start_watcher(){
                 break;
             }
             case FileStatus::modified: {
-                std::cout << "File modified: " << path_to_watch << '\n';
+
                 statusVal = 1;
                 break;
             }
             case FileStatus::erased: {
-                std::cout << "File erased: " << path_to_watch << '\n';
+
                 statusVal = 1;
                 break;
             }
             default: {
-                std::cout << "Error! Unknown file status.\n";
                 statusVal = 4;
             }
         }
@@ -420,7 +403,6 @@ void tcp_client::start_watcher(){
         return statusVal;
     });
 
-    std::cout<<"Status value: " << status <<std::endl;
 
     if(status == 1){
         JSON_client = JSON_utility::create_json(username_, password_, "default", path_);
@@ -432,13 +414,13 @@ void tcp_client::start_watcher(){
 }
 
 void tcp_client::ask_file_fun(boost::property_tree::ptree& JSON,int start){
-    std::cout<<"SERVER CHIEDE UN FILE"<<std::endl;
+
     std::string path = path_.string() + "/";
     for(int i=1; i<JSON.get<int>("size"); i++){
         path += JSON.get<std::string>(std::to_string(i)) + "/";
     }
     path += JSON.get<std::string>("file_name");
-    std::cout<<"PERCORSO FILE : " << path<<std::endl;
+
     file_blocks = to_file_from_bytes(path);
 
     if(file_blocks.size() > 0){
@@ -454,12 +436,11 @@ void tcp_client::ask_file_fun(boost::property_tree::ptree& JSON,int start){
 
 
 void tcp_client::file_received_fun(boost::property_tree::ptree& JSON){
-    std::cout << "SERVER CHIEDE UN ALTRO PEZZO DEL FILE" << std::endl;
+
     int index_block = JSON.get<int>("block_info.index_block") + 1;
     int num_blocks = JSON.get<int>("block_info.num_blocks");
 
     if (index_block + 1 == num_blocks) {
-        //E' l'ultimo
         //E' l'ultimo
         file_blocks[index_block].put("status", "last");
     }

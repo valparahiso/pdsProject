@@ -27,7 +27,6 @@ boost::property_tree::ptree JSON_utility::create_json(const std::string& usernam
         JSON.add_child("data", JSON_utility::create_data_json(path_));
     } else JSON.put("data", "");
 
-    JSON_utility::print_JSON(JSON);
     return JSON;
 
 }
