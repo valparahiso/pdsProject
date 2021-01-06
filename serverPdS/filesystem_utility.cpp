@@ -112,7 +112,7 @@ void filesystem_utility::delete_from(const boost::property_tree::ptree &JSON_des
 
 
                 JSON_source.erase(tree.first);
-                JSON_utility::print_JSON(JSON_source);
+                //JSON_utility::print_JSON(JSON_source);
 
             } else {
 
@@ -125,7 +125,7 @@ void filesystem_utility::delete_from(const boost::property_tree::ptree &JSON_des
                 boost::filesystem::remove(boost::filesystem::path(path_source + "/" + tree.first));
 
                 JSON_source.erase(tree.first);
-                JSON_utility::print_JSON(JSON_source);
+               // JSON_utility::print_JSON(JSON_source);
             }
         }
     }

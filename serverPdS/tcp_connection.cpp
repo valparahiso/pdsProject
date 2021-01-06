@@ -248,6 +248,7 @@ void tcp_connection::default_fun(){
 
             files.clear();
             files = JSON_utility::JSON_differences(JSON_client.get_child("data"), JSON_server.get_child("data"), username_, path_, files);
+
             if(!files.empty()){
                 files[0].put("num_files", std::to_string(files.size()));
                 files[0].put("index_file", "0");
@@ -257,7 +258,6 @@ void tcp_connection::default_fun(){
                 std::cout<<"Cartella aggiornata con successo"<<std::endl;
                 JSON_client.put("connection", "default_directory_valid");
                 write_data(JSON_client);
-                //stop();
             }
         }
     } else {

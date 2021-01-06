@@ -59,6 +59,7 @@ boost::property_tree::ptree JSON_utility::create_data_json(const boost::filesyst
 
 std::vector<boost::property_tree::ptree> JSON_utility::JSON_differences(const boost::property_tree::ptree& JSON_destination, boost::property_tree::ptree JSON_source,
                                                                         const std::string& username_, const boost::filesystem::path& path_, std::vector<boost::property_tree::ptree> files_to_ask){
+
     filesystem_utility::delete_from(JSON_destination, JSON_source, path_.string());
     boost::property_tree::write_json(std::cout, JSON_source);
 
