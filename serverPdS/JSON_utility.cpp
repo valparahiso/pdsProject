@@ -6,7 +6,7 @@
 void JSON_utility::print_JSON(const boost::property_tree::ptree& JSON){
     boost::property_tree::ptree JSON2 = JSON;
 
-    if(JSON.get("connection", "")=="sending_file"||JSON.get("connection", "")=="file_received"){
+    if(JSON.get("connection", "")=="sending_file" || JSON.get("connection", "")=="file_received" || JSON.get("connection", "")=="default_directory_valid"){
         JSON2.put("block_info.data", "HASH DEL FILE!!!");
     }
 

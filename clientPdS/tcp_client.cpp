@@ -357,7 +357,7 @@ void tcp_client::default_fun(boost::property_tree::ptree& JSON){
         file_received_fun(JSON);
     }
     else if(JSON.get("connection", "connection_error") == "default_directory_valid") {
-        std::cout<<"Allineati server e client!\nStarting watcher\n"<<std::endl;
+        std::cout<<"Cartelle aggiornate, starting file watcher"<<std::endl;
         start_watcher();
     }
 }
@@ -381,17 +381,18 @@ void tcp_client::start_watcher(){
 
         switch(status) {
             case FileStatus::created: {
+                std::cout<<"File creato\n"<<std::endl;
                 statusVal = 1;
 
                 break;
             }
             case FileStatus::modified: {
-
+                std::cout<<"File modificato\n"<<std::endl;
                 statusVal = 1;
                 break;
             }
             case FileStatus::erased: {
-
+                std::cout<<"File eliminato\n"<<std::endl;
                 statusVal = 1;
                 break;
             }
