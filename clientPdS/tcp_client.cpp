@@ -100,6 +100,7 @@ void tcp_client::handle_connect(const boost::system::error_code& ec,tcp::resolve
     }
     // Otherwise we have successfully established a connection.
     else{
+        attempt_=0;
         std::cout << "Connected to " << endpoint_iter->endpoint() << "\n\n";
         JSON_client = JSON_utility::create_json(username_, password_, command_, path_);
         write_data(JSON_client);
@@ -147,10 +148,19 @@ void tcp_client::handle_read_data(const boost::system::error_code& ec, std::size
         }
     }
     else{
-        std::perror("Error: ");
-        std::cout << "Error on receive: " << ec.message() << "\n";
 
-        stop();
+        if(n==0){
+            //Retry connection
+            std::cout << "Server down, reconnection" << "\n";
+            start(endpoints_);
+        }
+        else{
+            std::perror("Error: ");
+            std::cout << "Error on receive: " << ec.message() << "\n";
+            stop();
+
+        }
+
     }
 }
 
@@ -182,6 +192,7 @@ void tcp_client::handle_write_data(const boost::system::error_code& ec){
     }
     else{
         std::cout << "Error on heartbeat: " << ec.message() << "\n";
+        std::cout << "Closed server" << "\n";
 
         stop();
     }
@@ -318,6 +329,8 @@ void tcp_client::sending_file_fun(boost::property_tree::ptree& JSON){
     }
     std::string data = JSON.get<std::string>("block_info.data");
     filesystem_utility::write_file(path_file + JSON.get<std::string>("file_name"), std::vector<unsigned char>(data.begin(), data.end()));
+    std::cout<<"\nTrasferimento file in corso...\n"<<std::endl;
+
     if(JSON.get("block_info.status", "status_error") == "last"){
         int index_file = JSON.get<int>("index_file") +1;
         int num_files = JSON.get<int>("num_files");

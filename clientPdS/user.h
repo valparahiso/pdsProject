@@ -23,7 +23,7 @@ private:
     std::string command;
     std::string directory;
 
-    void authentication();
+    bool authentication();
 
     void check_command();
 
