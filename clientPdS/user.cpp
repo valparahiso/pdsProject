@@ -28,8 +28,8 @@ bool user::authentication(){
     std::cout << "Please, enter your password: ";
     std::getline (std::cin,this->password);
     std::cout<<std::endl;
-    if(this->username.find('/') != std::string::npos){
-        std::cout<<"Errore username: carattere non valido"<<std::endl;
+    if(this->password.find('/') != std::string::npos){
+        std::cout<<"Errore password: carattere non valido"<<std::endl;
         return false;
     }
     return true;

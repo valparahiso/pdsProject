@@ -38,7 +38,7 @@ private:
 
     void handle_write_data(const boost::system::error_code& ec);
 
-    void check_deadline();
+    //void check_deadline();
 
     std::vector<boost::property_tree::ptree> to_file_from_bytes(std::string path_file);
 
@@ -49,8 +49,6 @@ private:
     void restore_fun(boost::property_tree::ptree& JSON);
 
     void empty_data_fun(boost::property_tree::ptree& JSON);
-
-    boost::property_tree::ptree create_request(boost::property_tree::ptree& JSON, std::string path);
 
     void sending_file_fun(boost::property_tree::ptree& JSON);
 
@@ -69,14 +67,11 @@ private:
     tcp::resolver::results_type endpoints_;
     tcp::socket socket_;
     std::string input_buffer_;
-    steady_timer deadline_;
-    steady_timer heartbeat_timer_;
     std::string username_;
     std::string password_;
     std::vector<boost::property_tree::ptree> files;
     boost::filesystem::path path_;
     std::string command_;
-    std::string directory_;
     boost::property_tree::ptree JSON_client;
     boost::property_tree::ptree JSON_client_old;
     std::vector<boost::property_tree::ptree> file_blocks;

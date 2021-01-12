@@ -9,11 +9,12 @@ int main(){
         tcp_server server(io_context);
         std::vector<std::thread> threads;
         threads.reserve(std::thread::hardware_concurrency());
-        for(int i=0; i<2; i++)
+        for(int i=0; i<std::thread::hardware_concurrency()-1; i++)
             threads.emplace_back(std::thread(
-                    [&io_context](){
+                    [&io_context]() {
                         io_context.run();
                     }));
+
         io_context.run();
     }
     catch (std::exception& e){
@@ -21,5 +22,7 @@ int main(){
     }
     return 0;
 }
+
+
 
 

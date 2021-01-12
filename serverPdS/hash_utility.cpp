@@ -26,7 +26,7 @@ std::string hash_utility::calculate_hash(const std::string& file_path){
     std::ostringstream out;
 
     file_descriptor = open(file_path.c_str(), O_RDONLY);
-    if(file_descriptor < 0) exit(-1);
+    if(file_descriptor < 0) return "";
 
 
     file_size = hash_utility::get_size_by_fd(file_descriptor);

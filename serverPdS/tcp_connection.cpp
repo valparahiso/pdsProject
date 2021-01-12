@@ -110,14 +110,13 @@ bool tcp_connection::check_directory(boost::filesystem::path path){
     return false;
 }
 
+//Passiamo JSON_client che è il contenuto di "data" del JSON iniziale.
 bool tcp_connection::check_validity(boost::property_tree::ptree JSON_client){
     JSON_client.sort();
     JSON_server.add_child("data", JSON_utility::create_data_json(path_, 0));
     boost::property_tree::ptree JSON_server_sorted = JSON_server.get_child("data");
     JSON_server_sorted.sort();
 
-    boost::property_tree::write_json(std::cout, JSON_server_sorted);
-    boost::property_tree::write_json(std::cout, JSON_client);
     return (JSON_server_sorted == JSON_client);
 }
 
@@ -143,10 +142,10 @@ std::vector<boost::property_tree::ptree> tcp_connection::send_file(std::string p
 
 
     boost::property_tree::ptree file_asked;
-    int size = 30720;
+    int size = 30720; //30 KB
     if(bytes_to_transfer >= 30720){
         bytes_to_transfer -= 30720;
-    } else {
+    } else { //LAST PACKET
         if(bytes_to_transfer >= 0) {
             size = bytes_to_transfer;
             bytes_to_transfer = -1;
@@ -170,7 +169,7 @@ std::vector<boost::property_tree::ptree> tcp_connection::send_file(std::string p
     file_asked.put("data", std::string(buffer_hex.str()));
 
     file_blocks.push_back(file_asked);
-    file_blocks = send_file(path_file, bytes_to_transfer, file_blocks, offset + 30720);
+    file_blocks = send_file(path_file, bytes_to_transfer, file_blocks, offset + 30720); //Chiamiamo send_file con il prossimo blocco da 30KB
     return file_blocks;
 }
 
@@ -193,17 +192,16 @@ void tcp_connection::restore_fun(){
         if(!JSON_client.get_child("data").empty() && check_validity(JSON_client.get_child("data"))){
             JSON_client.put("connection", "directory_valid");
             write_data(JSON_client);
-        } else if(JSON_client.get_child("data").empty()){
+        } else if(JSON_client.get_child("data").empty()){  //Cartella del client è vuota
             std::cout<<"CARTELLA NON PRESENTE SUL CLIENT"<<std::endl;
             JSON_server = JSON_client;
             JSON_server.put_child("data",JSON_utility::create_data_json(path_, 1));
             JSON_server.put("connection", "empty_data");
             write_data(JSON_server);
         } else {
-            //DIFFERENZE
+            //Ci sono differenze tra cartella del client e del server
             std::cout<<"CARTELLA PRESENTE SUL CLIENT"<<std::endl;
             JSON_server.put("connection", "differences");
-            boost::property_tree::write_json(std::cout, JSON_server);
 
             write_data(JSON_server);
         }
@@ -226,14 +224,12 @@ void tcp_connection::check_validity_fun() {
     } else {
         JSON_client.put("connection", "directory_error");
         write_data(JSON_client);
-        //RILASCIARE RISORSE SOCKET
     }
 }
 
 void tcp_connection::default_fun(){
     if(check_directory(path_)){
-        //cartella esiste sul client
-        JSON_server.erase("data");
+        JSON_server.erase("data"); //JSON server pulisce i suoi dati
         if(!JSON_client.get_child("data").empty() && check_validity(JSON_client.get_child("data"))){
 
             std::cout<<"Cartelle già allineate"<<std::endl;
@@ -242,17 +238,13 @@ void tcp_connection::default_fun(){
 
         } else {
             std::cout<<"Cartelle esistente ma non allineate"<<std::endl;
-            boost::property_tree::write_json(std::cout, JSON_client.get_child("data"));
 
-            boost::property_tree::write_json(std::cout, JSON_server.get_child("data"));
-
-            files.clear();
+            files.clear(); //cancelliamo il vettore dei file da chiedere al client
             files = JSON_utility::JSON_differences(JSON_client.get_child("data"), JSON_server.get_child("data"), username_, path_, files);
 
             if(!files.empty()){
                 files[0].put("num_files", std::to_string(files.size()));
                 files[0].put("index_file", "0");
-                boost::property_tree::write_json(std::cout, files[0]);
                 write_data(files[0]);
             } else {
                 std::cout<<"Cartella aggiornata con successo"<<std::endl;
@@ -261,19 +253,14 @@ void tcp_connection::default_fun(){
             }
         }
     } else {
+        //Sul server non esiste la directory
         JSON_server = JSON_client;
         JSON_server.erase("data");
         JSON_server.put("data", "");
-        std::cout<<"Cartelle non esistente"<<std::endl;
-        boost::property_tree::write_json(std::cout, JSON_client);
-
-        boost::property_tree::write_json(std::cout, JSON_server);
-
 
         boost::filesystem::create_directory(path_);
 
         files = JSON_utility::JSON_differences(JSON_client.get_child("data"), JSON_server.get_child("data"), username_, path_, files);
-
 
         if(!files.empty()){
             files[0].put("num_files", std::to_string(files.size()));
@@ -284,7 +271,6 @@ void tcp_connection::default_fun(){
             std::cout<<"Cartella aggiornata con successo"<<std::endl;
             JSON_client.put("connection", "default_directory_valid");
             write_data(JSON_client);
-            //stop();
         }
     }
 
@@ -293,7 +279,7 @@ void tcp_connection::default_fun(){
 void tcp_connection::ask_file_fun(){
     std::string path = "";
     for(int i=0; i<JSON_client.get<int>("size"); i++){
-        path += JSON_client.get<std::string>(std::to_string(i)) + "/";
+        path += JSON_client.get<std::string>(std::to_string(i)) + "/"; // Costruisco il path del file richiesto dal client
     }
     path += JSON_client.get<std::string>("file_name");
     file_blocks = to_file_from_bytes(path);
@@ -317,6 +303,7 @@ void tcp_connection::file_received_fun(){
         //E' l'ultimo
         file_blocks[index_block].put("status", "last");
     }
+    //Aggiorniamo gli indici per comunicare al client quali file stiamo inviando
     file_blocks[index_block].put("index_block", std::to_string(index_block));
     file_blocks[index_block].put("num_blocks", std::to_string(num_blocks));
     JSON_client.erase("block_info");
@@ -331,34 +318,29 @@ void tcp_connection::sending_file_fun(){
 
 
     for(int i=1; i<JSON_client.get<int>("size"); i++){
-        std::string directoryToCheck = JSON_client.get<std::string>(std::to_string(i));
-
-
+        std::string directoryToCheck = JSON_client.get<std::string>(std::to_string(i)); //Creo il percorso del file da creare
         path_file += JSON_client.get<std::string>(std::to_string(i)) + "/";
-
     }
 
     std::string data = JSON_client.get<std::string>("block_info.data");
     filesystem_utility::write_file(path_file + JSON_client.get<std::string>("file_name"), std::vector<unsigned char>(data.begin(), data.end()));
+
     if(JSON_client.get("block_info.status", "status_error") == "last"){
-        int index_file = JSON_client.get<int>("index_file") +1;
+        //Ultimo blocco ricevuto
+        int index_file = JSON_client.get<int>("index_file") + 1;
         int num_files = JSON_client.get<int>("num_files");
-        if(index_file == num_files){
-            std::cout<<"CARTELLA AGGIORNATA CON SUCCESSO. . . . Chiusura socket. . . ."<<std::endl;
+        if(index_file == num_files){ //ultimo file
+            //Cartelle aggiornate
             JSON_client.put("connection", "default_directory_valid");
             write_data(JSON_client);
-
-            //stop();
         } else{
-
-
             files[index_file].put("index_file", std::to_string(index_file));
             files[index_file].put("num_files", std::to_string(num_files));
             write_data(files[index_file]);
         }
 
     } else {
-        //Scriviamo che abbiamo ricevuto l'ultimo.
+        //Scriviamo che abbiamo ricevuto un blocco di un file (non l'ultimo)
         JSON_client.put("connection", "file_received");
         write_data(JSON_client);
     }

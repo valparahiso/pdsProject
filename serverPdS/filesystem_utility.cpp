@@ -60,11 +60,7 @@ std::vector<boost::property_tree::ptree> filesystem_utility::add_to(const boost:
                                                                     boost::property_tree::ptree &JSON_source, const std::string &path_source,
                                                                     const std::string &path_destination, std::vector<boost::property_tree::ptree> files_to_ask) {
     for (auto tree : JSON_destination) {
-        std::cout<<"First: "<< tree.first <<std::endl;
-        std::cout<<"Second: "<< tree.second.data() <<std::endl;
-
         if (tree.second.data() == "") {   //DIRECTORY
-
             if (JSON_source.count(tree.first) == 0) {
                 files_to_ask = create_file_system(
                         JSON_destination.get_child(boost::property_tree::ptree::path_type(tree.first, '/')),
@@ -112,7 +108,6 @@ void filesystem_utility::delete_from(const boost::property_tree::ptree &JSON_des
 
 
                 JSON_source.erase(tree.first);
-                //JSON_utility::print_JSON(JSON_source);
 
             } else {
 
@@ -125,7 +120,6 @@ void filesystem_utility::delete_from(const boost::property_tree::ptree &JSON_des
                 boost::filesystem::remove(boost::filesystem::path(path_source + "/" + tree.first));
 
                 JSON_source.erase(tree.first);
-               // JSON_utility::print_JSON(JSON_source);
             }
         }
     }

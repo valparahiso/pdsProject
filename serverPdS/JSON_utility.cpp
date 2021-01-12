@@ -7,7 +7,7 @@ void JSON_utility::print_JSON(const boost::property_tree::ptree& JSON){
     boost::property_tree::ptree JSON2 = JSON;
 
     if(JSON.get("connection", "")=="sending_file" || JSON.get("connection", "")=="file_received" || JSON.get("connection", "")=="default_directory_valid"){
-        JSON2.put("block_info.data", "HASH DEL FILE!!!");
+        JSON2.put("block_info.data", "Bytes del file in hex");
     }
 
     boost::property_tree::write_json(std::cout, JSON2);
@@ -39,6 +39,12 @@ boost::property_tree::ptree JSON_utility::create_json(const std::string& usernam
 
 }
 
+//option != 0 -> NO HASH
+/*
+ * L'opzione option != 0 è stata introdotta per evitare che nel caso il client chieda una restore con la cartella vuota vengano calcolati inutilmente
+ * gli hash di tutti i file del server che sicuramente mancano sul client.
+ */
+//path: percorso da cui partire per calcolare il JSON.
 boost::property_tree::ptree JSON_utility::create_data_json(const boost::filesystem::path& path, int option){
 
         boost::property_tree::ptree directory;
@@ -61,7 +67,6 @@ std::vector<boost::property_tree::ptree> JSON_utility::JSON_differences(const bo
                                                                         const std::string& username_, const boost::filesystem::path& path_, std::vector<boost::property_tree::ptree> files_to_ask){
 
     filesystem_utility::delete_from(JSON_destination, JSON_source, path_.string());
-    boost::property_tree::write_json(std::cout, JSON_source);
 
     return filesystem_utility::add_to(JSON_destination, JSON_source, path_.string(), path_.filename().string(), files_to_ask);
 }

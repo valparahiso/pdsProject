@@ -8,11 +8,8 @@
 tcp_client::tcp_client(boost::asio::io_context& io_context, std::string username, std::string password, std::string directory, std::string command)
     : stopped_(false),
     socket_(io_context),
-    deadline_(io_context),
-    heartbeat_timer_(io_context),
     username_(username),
     password_(password),
-    directory_(directory),
     path_(boost::filesystem::path(directory)),
     command_(command)
 {
@@ -26,11 +23,6 @@ void tcp_client::start(tcp::resolver::results_type endpoints){
     // Start the connect actor.
     endpoints_ = endpoints;
     start_connect(endpoints_.begin());
-
-    // Start the deadline actor. You will note that we're not setting any
-    // particular deadline here. Instead, the connect and input actors will
-    // update the deadline prior to each asynchronous operation.
-    deadline_.async_wait(boost::bind(&tcp_client::check_deadline, this));
 }
 
 void tcp_client::stop(){
@@ -38,16 +30,11 @@ void tcp_client::stop(){
     stopped_ = true;
     boost::system::error_code ignored_ec;
     socket_.close(ignored_ec);
-    deadline_.cancel();
-    heartbeat_timer_.cancel();
 }
 
 void tcp_client::start_connect(tcp::resolver::results_type::iterator endpoint_iter){
     if (endpoint_iter != endpoints_.end()){
         std::cout << "Trying " << endpoint_iter->endpoint() << "\n";
-
-        // Set a deadline for the connect operatiod\nn.
-        deadline_.expires_after(boost::asio::chrono::seconds(60));
 
         // Start the asynchronous connect operation.
         socket_.async_connect(endpoint_iter->endpoint(),
@@ -64,29 +51,18 @@ void tcp_client::handle_connect(const boost::system::error_code& ec,tcp::resolve
     if (stopped_)
         return;
 
-    // The async_connect() function automatically opens the socket at the start
-    // of the asynchronous operation. If the socket is closed at this time then
-    // the timeout handler must have run first.
-    if (!socket_.is_open()){
+    /*if (!socket_.is_open()){
         std::cout << "Connect timed out\n";
 
-        // Try the next available endpoint.
-        start_connect(++endpoint_iter);
-    }
+        // Retry the endpoint.
+        start_connect(endpoint_iter);
+    }*/
 
-        // Check if the connect operation failed before the deadline expired.
-    else if (ec){
-        std::cout << "Connect error: " << ec.message() << "\n";
+    if (ec){
+        std::cout << "Connection error"<< std::endl;
 
-        // We need to close the socket used in the previous connection attempt
-        // before starting a new one.
-
-
-        socket_.close();
-
-        // Try the next available endpoint.
         std::cout<<"Server offline, tento una nuova connessione . . . "<<std::endl;
-        std::cout<<"Connessione " << attempt_ << "/" << MAX_ATTEMPT <<std::endl;
+        std::cout<<"Connessione " << attempt_ << "/" << MAX_ATTEMPT <<"\n"<<std::endl;
 
         if(attempt_ < MAX_ATTEMPT) {
             attempt_++;
@@ -121,20 +97,16 @@ void tcp_client::handle_read_data(const boost::system::error_code& ec, std::size
     if (stopped_)
         return;
 
-
-
     if (!ec){
         // Extract the newline-delimited message from the buffer.
         std::string line(input_buffer_.substr(0, n - 1));
         input_buffer_.erase(0, n);
 
-        // Empty messages are heartbeats and so ignored.
         if (!line.empty()){
             std::istringstream ss(line);
             boost::property_tree::ptree JSON;
             read_json(ss, JSON);
 
-            //std::cout << "Received: " << line << "\n";
             if(JSON.get("connection", "connection_error") == "login_error"){
                 std::cout << "Autenticazione Fallita" << std::endl;
                 stop();
@@ -184,41 +156,12 @@ void tcp_client::handle_write_data(const boost::system::error_code& ec){
         return;
 
     if (!ec){
-        // Wait 10 seconds before sending the next heartbeat.
-        //heartbeat_timer_.expires_after(boost::asio::chrono::seconds(1));
-
-        heartbeat_timer_.async_wait(boost::bind(&tcp_client::read_data, this));
-
+        read_data();
     }
     else{
-        std::cout << "Error on heartbeat: " << ec.message() << "\n";
-        std::cout << "Closed server" << "\n";
-
+        std::cout << "Error: " << ec.message() << "\n";
         stop();
     }
-}
-
-void tcp_client::check_deadline(){
-    if (stopped_)
-        return;
-
-    // Check whether the deadline has passed. We compare the deadline against
-    // the current time since a new asynchronous operation may have moved the
-    // deadline before this actor had a chance to run.
-    if (deadline_.expiry() <= steady_timer::clock_type::now()){
-        // The deadline has passed. The socket is closed so that any outstanding
-        // asynchronous operations are cancelled.
-
-        //socket_.close();
-
-        // There is no longer an active deadline. The expiry is set to the
-        // maximum time point so that the actor takes no action until a new
-        // deadline is set.
-        deadline_.expires_at(steady_timer::time_point::max());
-    }
-
-    // Put the actor back to sleep.
-    deadline_.async_wait(boost::bind(&tcp_client::check_deadline, this));
 }
 
 std::vector<boost::property_tree::ptree> tcp_client::to_file_from_bytes(std::string path_file){
@@ -313,15 +256,6 @@ void tcp_client::empty_data_fun(boost::property_tree::ptree& JSON){
     }
 }
 
-boost::property_tree::ptree tcp_client::create_request(boost::property_tree::ptree& JSON, std::string path){
-    files = filesystem_utility::create_file_system(JSON.get_child("data"), path, username_ + "/" + path, files);
-    if(!files.empty()){
-        files[0].put("num_files", std::to_string(files.size()));
-        files[0].put("index_file", "0");
-    }
-    return files[0];
-}
-
 void tcp_client::sending_file_fun(boost::property_tree::ptree& JSON){
     std::string path_file = path_.string() + "/";
     for(int i=2; i<JSON.get<int>("size"); i++){
@@ -332,9 +266,11 @@ void tcp_client::sending_file_fun(boost::property_tree::ptree& JSON){
     std::cout<<"\nTrasferimento file in corso...\n"<<std::endl;
 
     if(JSON.get("block_info.status", "status_error") == "last"){
+        //ultimo blocco di un file
         int index_file = JSON.get<int>("index_file") +1;
         int num_files = JSON.get<int>("num_files");
         if(index_file == num_files){
+            //ultimo file da ricevere
             std::cout<<"Cartella aggiornata con successo"<<std::endl;
             stop();
         } else{
@@ -344,7 +280,7 @@ void tcp_client::sending_file_fun(boost::property_tree::ptree& JSON){
         }
 
     } else {
-        //Scriviamo che abbiamo ricevuto l'ultimo.
+        //Scriviamo che abbiamo ricevuto un blocco del file (non l'ultimo)
         JSON.put("connection", "file_received");
         write_data(JSON);
     }
@@ -379,8 +315,7 @@ void tcp_client::start_watcher(){
     JSON_client_old = JSON_client;
     std::vector<std::string> result;
     std::string correct_path = "";
-    boost::split(result, directory_, boost::is_any_of("/"));
-    std::string dir = result[result.size()-1];
+    std::string dir = path_.filename().string();
     files.clear();
     file_blocks.clear();
     // Start monitoring a folder for changes and (in case of changes)
@@ -388,24 +323,25 @@ void tcp_client::start_watcher(){
     int status = fw->start([dir, this] (std::string path_to_watch, FileStatus status) -> int {
         // Process only regular files, all other file types are ignored
         if(!std::experimental::filesystem::is_regular_file(std::experimental::filesystem::path(path_to_watch)) && status != FileStatus::erased) {
+            std::cout<<"Creazione\n"<<std::endl;
             return 1;
         }
         int statusVal = -1;
 
         switch(status) {
             case FileStatus::created: {
-                std::cout<<"File creato\n"<<std::endl;
+                std::cout<<"Creazione\n"<<std::endl;
                 statusVal = 1;
 
                 break;
             }
             case FileStatus::modified: {
-                std::cout<<"File modificato\n"<<std::endl;
+                std::cout<<"Modifica\n"<<std::endl;
                 statusVal = 1;
                 break;
             }
             case FileStatus::erased: {
-                std::cout<<"File eliminato\n"<<std::endl;
+                std::cout<<"Eliminazione\n"<<std::endl;
                 statusVal = 1;
                 break;
             }
@@ -419,6 +355,7 @@ void tcp_client::start_watcher(){
 
 
     if(status == 1){
+        //C'è stata una modifica/creazione/eliminazione, uso JSON default
         JSON_client = JSON_utility::create_json(username_, password_, "default", path_);
         write_data(JSON_client);
     }
