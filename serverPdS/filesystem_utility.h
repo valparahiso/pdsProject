@@ -22,8 +22,8 @@ namespace filesystem_utility {
 
 
     std::vector<boost::property_tree::ptree>
-    create_file_system(boost::property_tree::ptree JSON_destination, std::string path_source,
-                       std::string path_destination, std::vector<boost::property_tree::ptree> files_to_ask);
+    create_file_system(boost::property_tree::ptree JSON_client, std::string path_server,
+                       std::string path_client, std::vector<boost::property_tree::ptree> files_to_ask);
 
     std::vector<boost::property_tree::ptree> add_to(const boost::property_tree::ptree &JSON_client, boost::property_tree::ptree &JSON_server,
                                                     const std::string &path_server,

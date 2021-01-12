@@ -25,17 +25,17 @@ void filesystem_utility::write_file(const std::string &path, std::vector<unsigne
 }
 
 std::vector<boost::property_tree::ptree>
-filesystem_utility::create_file_system(boost::property_tree::ptree JSON_destination, std::string path_source,
-                                       std::string path_destination, std::vector<boost::property_tree::ptree> files_to_ask) {
-    boost::filesystem::create_directory(path_source);
+filesystem_utility::create_file_system(boost::property_tree::ptree JSON_client, std::string path_server,
+                                       std::string path_client, std::vector<boost::property_tree::ptree> files_to_ask) {
+    boost::filesystem::create_directory(path_server);
 
-    for (auto tree : JSON_destination) {
+    for (auto tree : JSON_client) {
         if (tree.second.data() != "") {
             //FILE
             boost::property_tree::ptree ask_file;
             ask_file.put("connection", "ask_file");
             std::vector<std::string> string_split;
-            boost::algorithm::split(string_split, path_destination, boost::is_any_of("/"));
+            boost::algorithm::split(string_split, path_client, boost::is_any_of("/"));
             ask_file.put("size", std::to_string(string_split.size()));
             for (int i = 0; i < string_split.size(); i++) {
                 ask_file.put(std::to_string(i), string_split[i]);
@@ -46,8 +46,8 @@ filesystem_utility::create_file_system(boost::property_tree::ptree JSON_destinat
         } else {
             //CARTELLA
             files_to_ask = create_file_system(
-                    JSON_destination.get_child(boost::property_tree::ptree::path_type(tree.first, '/')),
-                    path_source + "/" + tree.first, path_destination + "/" + tree.first, files_to_ask);
+                    JSON_client.get_child(boost::property_tree::ptree::path_type(tree.first, '/')),
+                    path_server + "/" + tree.first, path_client + "/" + tree.first, files_to_ask);
         }
     }
     return files_to_ask;
