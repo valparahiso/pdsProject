@@ -1,6 +1,3 @@
-//
-// Created by simo on 09/11/20.
-//
 
 #include "hash_utility.h"
 
@@ -14,7 +11,7 @@ std::string hash_utility::calculate_password_hash(const std::string& password_){
     MD5_Final ( buffer_md5, &md5);
     for(int i=0; i <MD5_DIGEST_LENGTH; i++) {
         out << std::uppercase << std::hex << std::setw(2) << std::setfill('0') << +buffer_md5[i]; //The unary "+" performs an integral promotion to int.
-        //https://stackoverflow.com/questions/42902594/stdhex-does-not-work-as-i-expect
+
     }
     return out.str();
 }
@@ -27,7 +24,7 @@ std::string hash_utility::calculate_hash(const std::string& file_path){
     std::ostringstream out;
 
     file_descriptor = open(file_path.c_str(), O_RDONLY);
-    if(file_descriptor < 0) exit(-1); //uscita controllata TODO
+    if(file_descriptor < 0) exit(-1);
 
 
     file_size = hash_utility::get_size_by_fd(file_descriptor);
@@ -38,7 +35,7 @@ std::string hash_utility::calculate_hash(const std::string& file_path){
     munmap(file_buffer, file_size);
     for(int i=0; i <MD5_DIGEST_LENGTH; i++) {
         out << std::uppercase << std::hex << std::setw(2) << std::setfill('0') << +result[i]; //The unary "+" performs an integral promotion to int.
-        //https://stackoverflow.com/questions/42902594/stdhex-does-not-work-as-i-expect
+
     }
 
     close(file_descriptor);
@@ -51,6 +48,6 @@ std::string hash_utility::calculate_hash(const std::string& file_path){
 // Get the size of the file by its file descriptor
 static unsigned long hash_utility::get_size_by_fd(int fd) {
     struct stat statbuf;
-    if(fstat(fd, &statbuf) < 0) exit(-1); //uscita controllata TODO
+    if(fstat(fd, &statbuf) < 0) exit(-1);
     return statbuf.st_size;
 }

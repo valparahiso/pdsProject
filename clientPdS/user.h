@@ -1,6 +1,4 @@
-//
-// Created by simo on 19/10/20.
-//
+
 
 #ifndef CLIENTPDS_USER_H
 #define CLIENTPDS_USER_H

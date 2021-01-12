@@ -1,6 +1,4 @@
-//
-// Created by simo on 09/11/20.
-//
+
 
 #include "hash_utility.h"
 

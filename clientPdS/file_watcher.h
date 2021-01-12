@@ -1,6 +1,3 @@
-//
-// Created by simo on 09/11/20.
-//
 
 #ifndef CLIENTPDS_FILE_WATCHER_H
 #define CLIENTPDS_FILE_WATCHER_H

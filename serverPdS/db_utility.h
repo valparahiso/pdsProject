@@ -1,6 +1,4 @@
-//
-// Created by simo on 06/12/20.
-//
+
 
 #ifndef SERVERPDS_DB_UTILITY_H
 #define SERVERPDS_DB_UTILITY_H

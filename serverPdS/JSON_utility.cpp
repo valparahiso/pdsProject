@@ -1,6 +1,4 @@
-//
-// Created by simo on 09/11/20.
-//
+
 #include "JSON_utility.h"
 
 void JSON_utility::print_JSON(const boost::property_tree::ptree& JSON){
@@ -63,10 +61,10 @@ boost::property_tree::ptree JSON_utility::create_data_json(const boost::filesyst
         return directory;
 }
 
-std::vector<boost::property_tree::ptree> JSON_utility::JSON_differences(const boost::property_tree::ptree& JSON_destination, boost::property_tree::ptree JSON_source,
+std::vector<boost::property_tree::ptree> JSON_utility::JSON_differences(const boost::property_tree::ptree& JSON_client, boost::property_tree::ptree JSON_server,
                                                                         const std::string& username_, const boost::filesystem::path& path_, std::vector<boost::property_tree::ptree> files_to_ask){
 
-    filesystem_utility::delete_from(JSON_destination, JSON_source, path_.string());
+    filesystem_utility::delete_from(JSON_client, JSON_server, path_.string());
 
-    return filesystem_utility::add_to(JSON_destination, JSON_source, path_.string(), path_.filename().string(), files_to_ask);
+    return filesystem_utility::add_to(JSON_client, JSON_server, path_.string(), path_.filename().string(), files_to_ask);
 }

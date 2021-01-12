@@ -1,6 +1,4 @@
-//
-// Created by simo on 09/11/20.
-//
+
 
 #include "file_watcher.h"
 
@@ -13,7 +11,7 @@ FileWatcher::FileWatcher(std::string path_to_watch, std::chrono::duration<int, s
 
 // Monitor "path_to_watch" for changes and in case of a change execute the user supplied "action" function
 int FileWatcher::start(const std::function<int (std::string, FileStatus)> &action) {
-    int returnVal = -2;
+    int returnVal = -1;
     while(running_) {
         // Wait for "delay" milliseconds
         std::this_thread::sleep_for(delay);
@@ -29,7 +27,7 @@ int FileWatcher::start(const std::function<int (std::string, FileStatus)> &actio
                 it++;
             }
         }
-        if(returnVal !=-2) return returnVal;
+        if(returnVal !=-1) return returnVal;
 
 
         // Check if a file was created or modified
@@ -48,7 +46,7 @@ int FileWatcher::start(const std::function<int (std::string, FileStatus)> &actio
                 }
             }
         }
-        if(returnVal !=-2) break;
+        if(returnVal !=-1) break;
 
     }
     return returnVal;

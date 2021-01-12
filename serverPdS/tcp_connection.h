@@ -1,6 +1,4 @@
-//
-// Created by mik on 11/10/20.
-//
+
 
 #ifndef PDSPROJECT_TCP_CONNECTION_H
 #define PDSPROJECT_TCP_CONNECTION_H

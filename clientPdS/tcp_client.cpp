@@ -1,6 +1,3 @@
-//
-// Created by simo on 15/10/20.
-//
 
 #include "tcp_client.h"
 
@@ -346,7 +343,7 @@ void tcp_client::start_watcher(){
                 break;
             }
             default: {
-                statusVal = 4;
+                statusVal = -1;
             }
         }
 

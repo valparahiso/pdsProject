@@ -1,6 +1,4 @@
-//
-// Created by simo on 06/12/20.
-//
+
 
 #include "db_utility.h"
 

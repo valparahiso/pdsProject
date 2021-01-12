@@ -1,6 +1,3 @@
-//
-// Created by mario on 29/12/20.
-//
 
 #include "tcp_server.h"
 

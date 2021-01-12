@@ -1,6 +1,4 @@
-//
-// Created by simo on 09/11/20.
-//
+
 
 #include "filesystem_utility.h"
 
@@ -56,39 +54,39 @@ filesystem_utility::create_file_system(boost::property_tree::ptree JSON_destinat
 
 }
 
-std::vector<boost::property_tree::ptree> filesystem_utility::add_to(const boost::property_tree::ptree &JSON_destination,
-                                                                    boost::property_tree::ptree &JSON_source, const std::string &path_source,
-                                                                    const std::string &path_destination, std::vector<boost::property_tree::ptree> files_to_ask) {
-    for (auto tree : JSON_destination) {
+std::vector<boost::property_tree::ptree> filesystem_utility::add_to(const boost::property_tree::ptree &JSON_client,
+                                                                    boost::property_tree::ptree &JSON_server, const std::string &path_server,
+                                                                    const std::string &path_client, std::vector<boost::property_tree::ptree> files_to_ask) {
+    for (auto tree : JSON_client) {
         if (tree.second.data() == "") {   //DIRECTORY
-            if (JSON_source.count(tree.first) == 0) {
+            if (JSON_server.count(tree.first) == 0) {
                 files_to_ask = create_file_system(
-                        JSON_destination.get_child(boost::property_tree::ptree::path_type(tree.first, '/')),
-                        path_source + "/" + tree.first,
-                        path_destination + "/" + tree.first, files_to_ask);
-                JSON_source.add_child(tree.first, JSON_destination.get_child(
+                        JSON_client.get_child(boost::property_tree::ptree::path_type(tree.first, '/')),
+                        path_server + "/" + tree.first,
+                        path_client + "/" + tree.first, files_to_ask);
+                JSON_server.add_child(tree.first, JSON_client.get_child(
                         boost::property_tree::ptree::path_type(tree.first, '/')));
             } else {
-                files_to_ask = add_to(JSON_destination.get_child(boost::property_tree::ptree::path_type(tree.first, '/')),
-                                      JSON_source.get_child(boost::property_tree::ptree::path_type(tree.first, '/')),
-                                      path_source + "/" + tree.first, path_destination + "/" + tree.first, files_to_ask);
+                files_to_ask = add_to(JSON_client.get_child(boost::property_tree::ptree::path_type(tree.first, '/')),
+                                      JSON_server.get_child(boost::property_tree::ptree::path_type(tree.first, '/')),
+                                      path_server + "/" + tree.first, path_client + "/" + tree.first, files_to_ask);
             }
         } else {
 
-            if (JSON_source.count(tree.first) == 0) {
+            if (JSON_server.count(tree.first) == 0) {
                 boost::property_tree::ptree file_JSON;
                 file_JSON.put(boost::property_tree::ptree::path_type(tree.first, '/'), "X");
-                files_to_ask = create_file_system(file_JSON, path_source, path_destination, files_to_ask);
-                JSON_source.put(boost::property_tree::ptree::path_type(tree.first, '/'), tree.second.data());
-            } else if (JSON_source.get<std::string>(boost::property_tree::ptree::path_type(tree.first, '/')) !=
+                files_to_ask = create_file_system(file_JSON, path_server, path_client, files_to_ask);
+                JSON_server.put(boost::property_tree::ptree::path_type(tree.first, '/'), tree.second.data());
+            } else if (JSON_server.get<std::string>(boost::property_tree::ptree::path_type(tree.first, '/')) !=
                        tree.second.data()) {
 
 
-                boost::filesystem::remove(boost::filesystem::path(path_source + "/" + tree.first));
+                boost::filesystem::remove(boost::filesystem::path(path_server + "/" + tree.first));
                 boost::property_tree::ptree file_JSON;
                 file_JSON.put(boost::property_tree::ptree::path_type(tree.first, '/'), "X");
-                files_to_ask = create_file_system(file_JSON, path_source, path_destination, files_to_ask);
-                JSON_source.add(tree.first, tree.second.data());
+                files_to_ask = create_file_system(file_JSON, path_server, path_client, files_to_ask);
+                JSON_server.add(tree.first, tree.second.data());
             }
         }
     }
@@ -96,30 +94,30 @@ std::vector<boost::property_tree::ptree> filesystem_utility::add_to(const boost:
 }
 
 
-void filesystem_utility::delete_from(const boost::property_tree::ptree &JSON_destination, boost::property_tree::ptree &JSON_source,
-                                     const std::string &path_source) {
+void filesystem_utility::delete_from(const boost::property_tree::ptree &JSON_client, boost::property_tree::ptree &JSON_server,
+                                     const std::string &path_server) {
 
 
-    for (auto tree : JSON_source) {
+    for (auto tree : JSON_server) {
 
         if (tree.second.data() == "") {   //DIRECTORY
-            if (JSON_destination.count(tree.first) == 0) {
-                boost::filesystem::remove_all(boost::filesystem::path(path_source + "/" + tree.first));
+            if (JSON_client.count(tree.first) == 0) {
+                boost::filesystem::remove_all(boost::filesystem::path(path_server + "/" + tree.first));
 
 
-                JSON_source.erase(tree.first);
+                JSON_server.erase(tree.first);
 
             } else {
 
-                delete_from(JSON_destination.get_child(boost::property_tree::ptree::path_type(tree.first, '/')),
-                            JSON_source.get_child(boost::property_tree::ptree::path_type(tree.first, '/')),
-                            path_source + "/" + tree.first);
+                delete_from(JSON_client.get_child(boost::property_tree::ptree::path_type(tree.first, '/')),
+                            JSON_server.get_child(boost::property_tree::ptree::path_type(tree.first, '/')),
+                            path_server + "/" + tree.first);
             }
         } else {
-            if (JSON_destination.count(tree.first) == 0) {
-                boost::filesystem::remove(boost::filesystem::path(path_source + "/" + tree.first));
+            if (JSON_client.count(tree.first) == 0) {
+                boost::filesystem::remove(boost::filesystem::path(path_server + "/" + tree.first));
 
-                JSON_source.erase(tree.first);
+                JSON_server.erase(tree.first);
             }
         }
     }

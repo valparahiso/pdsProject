@@ -1,6 +1,3 @@
-//
-// Created by simo on 24/10/20.
-//
 
 #ifndef CLIENTPDS_DIRECTORY_EXCEPTION_H
 #define CLIENTPDS_DIRECTORY_EXCEPTION_H

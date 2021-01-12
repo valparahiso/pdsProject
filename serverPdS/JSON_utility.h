@@ -1,6 +1,4 @@
-//
-// Created by simo on 10/11/20.
-//
+
 
 #ifndef CLIENTPDS_JSON_UTILITY_H
 #define CLIENTPDS_JSON_UTILITY_H

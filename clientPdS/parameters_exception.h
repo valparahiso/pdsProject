@@ -1,6 +1,4 @@
-//
-// Created by simo on 19/10/20.
-//
+
 
 #ifndef CLIENTPDS_PARAMETERS_EXCEPTION_H
 #define CLIENTPDS_PARAMETERS_EXCEPTION_H

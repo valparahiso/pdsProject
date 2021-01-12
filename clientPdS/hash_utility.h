@@ -1,6 +1,4 @@
-//
-// Created by simo on 10/11/20.
-//
+
 
 #ifndef CLIENTPDS_HASH_UTILITY_H
 #define CLIENTPDS_HASH_UTILITY_H
