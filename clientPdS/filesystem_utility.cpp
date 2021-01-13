@@ -17,7 +17,7 @@ void filesystem_utility::write_file(const std::string &path, std::vector<unsigne
     std::string result(begin(bytes), end(bytes));
 
     std::vector<unsigned char> my_buff = std::vector<unsigned char>(result.begin(), result.end());
-    std::ofstream output_file(path, std::ios::binary | std::ios::out | std::fstream::app);
+    std::ofstream output_file(path, std::ios::binary | std::ios::out | std::fstream::app); //binario, scrittura, append
 
     output_file.write((char *) &my_buff[0], my_buff.size());
     output_file.close();

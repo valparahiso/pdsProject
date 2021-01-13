@@ -48,13 +48,6 @@ void tcp_client::handle_connect(const boost::system::error_code& ec,tcp::resolve
     if (stopped_)
         return;
 
-    /*if (!socket_.is_open()){
-        std::cout << "Connect timed out\n";
-
-        // Retry the endpoint.
-        start_connect(endpoint_iter);
-    }*/
-
     if (ec){
         std::cout << "Connection error"<< std::endl;
 
@@ -121,7 +114,8 @@ void tcp_client::handle_read_data(const boost::system::error_code& ec, std::size
         if(n==0){
             //Retry connection
             std::cout << "Server down, reconnection" << "\n";
-            start(endpoints_);
+            socket_.release();
+            start_connect(endpoints_);
         }
         else{
             std::perror("Error: ");
