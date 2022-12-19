@@ -1,0 +1,3 @@
+/home/simo/pdsProject/clientPdS/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/simo/pdsProject/clientPdS/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/simo/pdsProject/clientPdS/cmake-build-debug/CMakeFiles/clientPdS.dir
